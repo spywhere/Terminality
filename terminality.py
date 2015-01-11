@@ -7,6 +7,9 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
+TERMINALITY_VERSION = "0.1.0"
+
+
 def plugin_loaded():
     Settings.reset()
     Settings.startup()
@@ -112,7 +115,7 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
     ready_retry = 0
 
     main_menu = {
-        "items": [["Terminality", "v0.1"]],
+        "items": [["Terminality", "v" + TERMINALITY_VERSION]],
         "actions": [""]
     }
 
