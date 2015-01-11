@@ -5,16 +5,16 @@ import shlex
 
 class Macro:
     @staticmethod
-    def parse_macro(string, custom_macros=None, required=None):
+    def parse_macro(string, custom_macros=None, required=None, escaped=True):
         macros = {
-            "file": shlex.quote(Macro.get_file_path()),
-            "file_name": shlex.quote(Macro.get_file_name()),
-            "working": shlex.quote(Macro.get_working_dir()),
-            "working_project": shlex.quote(Macro.get_working_project_dir()),
-            "project": shlex.quote(Macro.get_project_dir()),
-            "parent": shlex.quote(Macro.get_parent_dir()),
-            "parent_name": shlex.quote(Macro.get_parent_name()),
-            "packages_path": shlex.quote(Macro.get_packages_path()),
+            "file": Macro.escape_string(Macro.get_file_path(), escaped),
+            "file_name": Macro.escape_string(Macro.get_file_name(), escaped),
+            "working": Macro.escape_string(Macro.get_working_dir(), escaped),
+            "working_project": Macro.escape_string(Macro.get_working_project_dir(), escaped),
+            "project": Macro.escape_string(Macro.get_project_dir(), escaped),
+            "parent": Macro.escape_string(Macro.get_parent_dir(), escaped),
+            "parent_name": Macro.escape_string(Macro.get_parent_name(), escaped),
+            "packages_path": Macro.escape_string(Macro.get_packages_path(), escaped),
             "sep": Macro.get_separator(),
             "$": "$"
         }
@@ -24,14 +24,30 @@ class Macro:
             for macro in custom_macros[macro_name]:
                 if macro.startswith("$") and macro[1:] in macros:
                     macros[macro_name] = macros[macro[1:]]
-        for macro in macros:
-            string = string.replace(
-                "$"+macro, macros[macro] if macro in macros and macros[macro] else ""
-            )
+
         for macro_name in required:
             if macro_name not in macros or not macros[macro_name]:
                 return None
-        return string
+
+        out_string = []
+        string = string.split(" ")
+
+        while string:
+            substr = string[0]
+            string = string[1:]
+            parsed = False
+            for macro in macros:
+                if substr == "$"+macro and macros[macro]:
+                    parsed = True
+                    out_string.append(macros[macro])
+                    break
+            if not parsed:
+                out_string.append(substr)
+        return " ".join(out_string)
+
+    @staticmethod
+    def escape_string(string, escaped=True):
+        return shlex.quote(string) if escaped else string
 
     @staticmethod
     def get_working_dir():

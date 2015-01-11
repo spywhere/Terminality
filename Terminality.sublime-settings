@@ -3,30 +3,37 @@
     //   If you want to override this settings,
     //   please set it again in additional_execution_units belows
     "execution_units": {
+        "source.lua": {
+            "Run $file_name": {
+                "description": "Run $file_name with default Lua runtime",
+                "required": ["file"],
+                "command": "lua -l $file"
+            }
+        },
         "source.python": {
             "Run $file_name": {
                 "description": "Run $file_name as Python 2.7 document",
                 "required": ["file"],
-                "command": "python $file",
-                "macros": {
-                    "custom": [
-                        "$parent",
-                        "$project",
-                        "$working_project"
-                    ]
-                }
+                "command": "python -u $file"
             },
             "Run $file_name in python3": {
                 "description": "Run $file_name as Python 3 document",
                 "required": ["file"],
-                "command": "python3 $file",
-                "macros": {
-                    "custom": [
-                        "$parent",
-                        "$project",
-                        "$working_project"
-                    ]
-                }
+                "command": "python3 -u $file"
+            }
+        },
+        "source.ruby": {
+            "Run $file_name": {
+                "description": "Run $file_name with default Ruby runtime",
+                "required": ["file"],
+                "command": "ruby $file"
+            }
+        },
+        "source.swift": {
+            "Run $file_name": {
+                "description": "Run $file_name with default Swift runtime",
+                "required": ["file"],
+                "command": "swift $file"
             }
         }
     },

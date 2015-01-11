@@ -1,7 +1,9 @@
 import sublime
 import sublime_plugin
+from .generic_shell import GenericShell
 from .QuickMenu.QuickMenu import QuickMenu
 from .macro import Macro
+from .progress import ThreadProgress
 from .settings import Settings
 
 
@@ -39,8 +41,65 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             custom_macros = execution_action["macros"]
         if "required" in execution_action:
             required_macros = execution_action["required"]
+        if "location" not in execution_action:
+            execution_action["location"] = "$working"
 
-        print(Macro.parse_macro(execution_action["command"], custom_macros, required_macros))
+        command_script = Macro.parse_macro(
+            string=execution_action["command"],
+            custom_macros=custom_macros,
+            required=required_macros
+        )
+        working_dir = Macro.parse_macro(
+            string=execution_action["location"],
+            custom_macros=custom_macros,
+            required=required_macros,
+            escaped=False
+        )
+        if command_script is None or working_dir is None:
+            sublime.error_message("Required macros are missing")
+            return
+
+        self.view = self.window.new_file()
+        self.view.set_name("Running...")
+        self.view.set_scratch(True)
+        shell = GenericShell(
+            cmds=command_script,
+            view=self.view,
+            on_complete=lambda e, r, p: self.on_complete(
+                e, r, p, execution_action
+            ),
+            read_only=("read_only" in execution_action and
+                       execution_action["read_only"])
+        )
+        shell.set_cwd(working_dir)
+        shell.start()
+        ThreadProgress(
+            thread=shell,
+            message="Running",
+            success_message="Terminal has been stopped",
+            set_status=self.set_status
+        )
+
+    def on_complete(self, elapse_time, return_code, params, execution_action):
+        if return_code is not None:
+            self.view.set_name(
+                "Terminal Ended (Return: {0}) [{1:.2f}s]".format(
+                    return_code, elapse_time
+                )
+            )
+            if "close_on_exit" in (execution_action and
+                                   execution_action["close_on_exit"]):
+                self.view.window().focus_view(self.view)
+                self.view.window().run_command("close")
+            sublime.set_timeout(lambda: self.set_status(), 3000)
+
+    def set_status(self, status=None):
+        for window in sublime.windows():
+            for view in window.views():
+                if status is None:
+                    view.erase_status("Terminality")
+                else:
+                    view.set_status("Terminality", status)
 
 
 class TerminalityCommand(sublime_plugin.WindowCommand):
@@ -86,15 +145,20 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
             if "required" in execution_unit:
                 required_macros = execution_unit["required"]
             action_name = Macro.parse_macro(
-                action, custom_macros, required_macros
+                string=action,
+                custom_macros=custom_macros,
+                required=required_macros,
+                escaped=False
             )
             if action_name is None:
                 continue
             dest = action_name + " command"
             if "description" in execution_unit:
                 dest = Macro.parse_macro(
-                    execution_unit["description"],
-                    custom_macros, required_macros
+                    string=execution_unit["description"],
+                    custom_macros=custom_macros,
+                    required=required_macros,
+                    escaped=False
                 )
             menu["items"] += [[action_name, dest]]
             menu["actions"] += [{
@@ -114,9 +178,15 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         """
         if not Settings.ready():
             if self.ready_retry > 2:
-                sublime.message_dialog("Terminality is starting up... Please wait a few seconds and try again.")
+                sublime.message_dialog(
+                    "Terminality is starting up..." +
+                    "Please wait a few seconds and try again."
+                )
             else:
-                sublime.status_message("Terminality is starting up... Please wait a few seconds and try again...")
+                sublime.status_message(
+                    "Terminality is starting up..." +
+                    "Please wait a few seconds and try again..."
+                )
             self.ready_retry += 1
             return
         if self.qm is None:
