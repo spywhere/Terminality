@@ -4,8 +4,29 @@
     //   please set it again in additional_execution_units belows
     "execution_units": {
         "source.python": {
-            "run": {
-                "command": "python $file"
+            "Run $file_name": {
+                "description": "Run $file_name as Python 2.7 document",
+                "required": ["file"],
+                "command": "python $file",
+                "macros": {
+                    "custom": [
+                        "$parent",
+                        "$project",
+                        "$working_project"
+                    ]
+                }
+            },
+            "Run $file_name in python3": {
+                "description": "Run $file_name as Python 3 document",
+                "required": ["file"],
+                "command": "python3 $file",
+                "macros": {
+                    "custom": [
+                        "$parent",
+                        "$project",
+                        "$working_project"
+                    ]
+                }
             }
         }
     },
@@ -16,13 +37,13 @@
     "additional_execution_units": {
         "EXAMPLE_EXECUTION_UNIT": {
             "run": {
-                "location": "$custom_dir",
+                "location": "$custom",
                 "command": "executable_to_run $file",
-                "macro": {
-                    "custom_dir": [
-                        "$parent_dir"
-                        "$project_dir",
-                        "$working_dir",
+                "macros": {
+                    "custom": [
+                        "$parent",
+                        "$project",
+                        "$working"
                     ]
                 }
             }

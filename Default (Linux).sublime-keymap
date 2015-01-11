@@ -1,0 +1,11 @@
+[
+    {
+        "keys": ["ctrl+alt+r"],
+        "command": "terminality",
+        "args": {
+            "action": {
+                "name": "main"
+            }
+        }
+    }
+]

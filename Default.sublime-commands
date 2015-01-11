@@ -1,0 +1,89 @@
+[
+    {
+        "caption": "Javatar: Browse Commands...",
+        "command": "javatar"
+    },
+    {
+        "caption": "Javatar: Builds...",
+        "command": "javatar",
+        "args": {
+            "action": {
+                "name": "builds"
+            }
+        }
+    },
+    {
+        "caption": "Javatar: Create new...",
+        "command": "javatar",
+        "args": {
+            "action": {
+                "name": "creates"
+            }
+        }
+    },
+    {
+        "caption": "Javatar: Operations...",
+        "command": "javatar",
+        "args": {
+            "action": {
+                "name": "operations"
+            }
+        }
+    },
+    {
+        "caption": "Javatar: Actions History",
+        "command": "javatar_help",
+        "args": {
+            "action": {
+                "action": "actions_history",
+                "selector": ""
+            }
+        }
+    },
+    {
+        "caption": "Javatar: Actions History (Custom)",
+        "command": "javatar_help",
+        "args": {
+            "action": {
+                "action": "actions_history"
+            }
+        }
+    },
+    {
+        "caption": "Javatar: Help and Support",
+        "command": "javatar",
+        "args": {
+            "action": {
+                "name": "help",
+            }
+        }
+    },
+    {
+        "caption": "Preferences: Javatar Settings – Default",
+        "command": "open_file", "args":
+        {
+            "file": "${packages}/Javatar/Javatar.sublime-settings"
+        }
+    },
+    {
+        "caption": "Preferences: Javatar Settings – User",
+        "command": "open_file", "args":
+        {
+            "file": "${packages}/User/Javatar.sublime-settings"
+        }
+    },
+    {
+        "caption": "Preferences: Javatar Key Bindings – Default",
+        "command": "open_file", "args":
+        {
+            "file": "${packages}/Javatar/Javatar.sublime-keymap"
+        }
+    },
+    {
+        "caption": "Preferences: Javatar Key Bindings – User",
+        "command": "open_file", "args":
+        {
+            "file": "${packages}/User/Javatar.sublime-keymap"
+        }
+    }
+]

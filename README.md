@@ -16,9 +16,10 @@ You can create your own command to be used with Terminality by open Terminality 
 			"<Action Name such as Compile or Run>": {
 				// All keys in here can be omitted except "command"
 				"location": "<String or Macro for location path will be used to run command>",
+				"required": [<List of macro that have to be set before run (without $)>]
 				"command": "<String or Macro to define command>",
 				"read_only": <Boolean indicated whether Terminal is read-only or not>,
-				"macro": {<A dictionary contains custom macros (See Macros section belows)>}
+				"macros": {<A dictionary contains custom macros (See Macros section belows)>}
 			}
 		}
 	},
@@ -26,5 +27,9 @@ You can create your own command to be used with Terminality by open Terminality 
 }
 ```
 
+Every macro name (except inside `required`) should have `$` prefix.
+
+See example inside Terminality's settings file
+
 ### Custom Macros
-You can create your own macro to be used with custom command by adding each macro to `macro` section in your execution unit (See command format aboves). Each macro is a key-value pairs which key indicated macro name to be used and value is a list of string or pre-defined macros.
+You can create your own macro to be used with custom command by adding each macro to `macros` section in your execution unit (See command format aboves). Each macro is a key-value pairs which key indicated macro name (without `$`) to be used and value is a list of string or pre-defined macros.
