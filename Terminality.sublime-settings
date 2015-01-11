@@ -1,0 +1,49 @@
+{
+    // Execution units for each language
+    //   If you want to override this settings,
+    //   please set it again in additional_execution_units belows
+    "execution_units": {
+        "source.python": {
+            "run": {
+                "command": "python $file"
+            }
+        }
+    },
+
+    // Additional execution units
+    // This will be merged with default execution units
+    // See format in README.md file
+    "additional_execution_units": {
+        "EXAMPLE_EXECUTION_UNIT": {
+            "run": {
+                "location": "$custom_dir",
+                "command": "executable_to_run $file",
+                "macro": {
+                    "custom_dir": [
+                        "$parent_dir"
+                        "$project_dir",
+                        "$working_dir",
+                    ]
+                }
+            }
+        }
+    },
+
+    // Amount of lines from bottom to snap into autoscrolling area
+    // Increase this number if autoscroll is not working properly
+    "autoscroll_snap_range": 1,
+
+    // Always scroll view to bottom in output window
+    "autoscroll_to_bottom": true,
+
+    // Refresh rate for Terminal (in second)
+    //    Increase this value can helps output to print more smoothly but
+    //    it's also affect the system performances
+    "refresh_interval": 0.01,
+
+    // Error handler on output encoding
+    //    ignore = Remove all invalid encoding character
+    //    replace = Replace all invalid encoding character with "?" symbol
+    // Change this value without knowing what you're doing is not a good idea
+    "encoding_handle": "replace",
+}
