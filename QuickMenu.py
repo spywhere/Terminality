@@ -30,7 +30,7 @@ import sublime
 
 class QuickMenu:
     settings = {
-        "menu": [],
+        "menu": {},
         "max_level": 50,
         "silent": True,
         "save_selected": True
@@ -45,7 +45,7 @@ class QuickMenu:
     }
 
     def __init__(self, menu=None, silent=True, save_selected=True, max_level=50):
-        menu = menu or []
+        menu = menu or {}
         self.settings["menu"] = copy.deepcopy(menu)
         self.settings["max_level"] = max_level
         self.settings["silent"] = silent
