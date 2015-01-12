@@ -1,49 +1,171 @@
 import sublime
 import os
 import shlex
+import re
+
+
+MACRO_PATTERN = re.compile("\\$(\\w+|\\$)")
+SUBSTR_PATTERN = re.compile("^(-?\\d+)?:(-?\\d+)?$")
 
 
 class Macro:
     @staticmethod
-    def parse_macro(string, custom_macros=None, required=None, escaped=True):
-        macros = {
-            "file": Macro.escape_string(Macro.get_file_path(), escaped),
-            "file_name": Macro.escape_string(Macro.get_file_name(), escaped),
-            "working": Macro.escape_string(Macro.get_working_dir(), escaped),
-            "working_project": Macro.escape_string(Macro.get_working_project_dir(), escaped),
-            "project": Macro.escape_string(Macro.get_project_dir(), escaped),
-            "parent": Macro.escape_string(Macro.get_parent_dir(), escaped),
-            "parent_name": Macro.escape_string(Macro.get_parent_name(), escaped),
-            "packages_path": Macro.escape_string(Macro.get_packages_path(), escaped),
+    def get_macros(macros=None, custom_macros=None,
+                   required=None, restricted=None):
+        macros = macros or {
+            "file": Macro.get_file_path(),
+            "file_name": Macro.get_file_name(),
+            "working": Macro.get_working_dir(),
+            "working_project": Macro.get_working_project_dir(),
+            "project": Macro.get_project_dir(),
+            "parent": Macro.get_parent_dir(),
+            "parent_name": Macro.get_parent_name(),
+            "packages_path": Macro.get_packages_path(),
             "sep": Macro.get_separator(),
             "$": "$"
         }
-        required = required or []
         custom_macros = custom_macros or {}
-        for macro_name in custom_macros:
-            for macro in custom_macros[macro_name]:
-                if macro.startswith("$") and macro[1:] in macros:
-                    macros[macro_name] = macros[macro[1:]]
+        required = required or []
+        restricted = restricted or []
 
-        for macro_name in required:
-            if macro_name not in macros or not macros[macro_name]:
+        restricted = [x.lower() for x in restricted]
+
+        for custom_macro_name in custom_macros:
+            if custom_macro_name.lower() in restricted:
+                continue
+            macro_output = None
+            macro_type = None
+            for macro in custom_macros[custom_macro_name]:
+                if isinstance(macro, str):
+                    if (macro_output is not None and
+                            macro_type and macro_type == "macro"):
+                        break
+                    macro_type = "macro"
+                    macro_output = Macro.parse_macro(
+                        string=macro,
+                        macros=macros,
+                        custom_macros=custom_macros,
+                        required=required,
+                        restricted=restricted+[custom_macro_name],
+                        internal=True
+                    )
+                elif isinstance(macro, list) or isinstance(macro, tuple):
+                    # Macro Type: Element Type (str, int, pattern)
+                    types = {
+                        "substr_reg": "p",
+                        "regex_reg": "s",
+                        "substr_dyn": "sp",
+                        "regex_dyn": "ss"
+                    }
+
+                    longest_matched = -1
+                    for m_type in types:
+                        macro_req = types[m_type]
+                        if len(macro) < len(macro_req):
+                            continue
+                        matched = True
+                        for i in range(len(macro_req)):
+                            req_type = macro_req[i]
+                            value = macro[i]
+                            if (req_type == "p" and
+                               (not isinstance(value, str) or
+                                   not SUBSTR_PATTERN.match(value))):
+                                matched = False
+                                break
+                            elif (req_type == "s" and
+                                 (not isinstance(value, str) or
+                                    SUBSTR_PATTERN.match(value))):
+                                matched = False
+                                break
+                            elif (req_type == "i" and
+                                    not isinstance(value, int)):
+                                matched = False
+                                break
+                        if matched and longest_matched < len(macro_req):
+                            macro_type = m_type
+
+                    if macro_output is None:
+                        if macro_type and macro_type.endswith("_reg"):
+                            continue
+                    else:
+                        if macro_type and macro_type.endswith("_dyn"):
+                            break
+
+                    if macro_type:
+                        if macro_type.endswith("_dyn"):
+                            output = Macro.parse_macro(
+                                string=macro[0],
+                                macros=macros,
+                                custom_macros=custom_macros,
+                                required=required,
+                                restricted=restricted+[custom_macro_name],
+                                internal=True
+                            )
+                            macro = macro[1:]
+                        else:
+                            output = macro_output
+
+                        if output is None:
+                            continue
+                        if macro_type.startswith("regex_"):
+                            matches = re.search(macro[0], output)
+                            if matches:
+                                capture = 0
+                                if len(macro) > 1 and isinstance(macro[1], int):
+                                    capture = int(macro[1])
+                                if (capture == 0 or
+                                        (matches.lastindex and
+                                         capture <= matches.lastindex)):
+                                    macro_output = matches.group(capture)
+                        elif macro_type.startswith("substr_"):
+                            substr = SUBSTR_PATTERN.match(macro[0])
+                            start = int(substr.group(1) or 0)
+                            end = int(substr.group(2) or len(output))
+                            macro_output = output[start:end]
+
+            if macro_output is not None:
+                macros[custom_macro_name.lower()] = macro_output
+        return macros
+
+    @staticmethod
+    def parse_macro(string, macros=None, custom_macros=None, required=None,
+                    restricted=None, escaped=False, internal=False):
+        if isinstance(string, str):
+            macros_list = Macro.get_macros(
+                macros=macros,
+                custom_macros=custom_macros,
+                required=required,
+                restricted=restricted
+            )
+
+            if internal:
+                for macro_name in [x for x in re.findall(MACRO_PATTERN, string)]:
+                    if macro_name not in macros_list:
+                        return None
+            else:
+                for macro_name in required:
+                    if macro_name not in macros_list:
+                        return None
+
+            if macros_list:
+                return MACRO_PATTERN.sub(
+                    lambda m: Macro.escape_string(
+                        Macro.parse_macro(
+                            string=m,
+                            macros=macros_list,
+                            custom_macros=custom_macros,
+                            required=required,
+                            restricted=restricted
+                        ) or "",
+                        escaped
+                    ),
+                    string
+                )
+            else:
                 return None
-
-        out_string = []
-        string = string.split(" ")
-
-        while string:
-            substr = string[0]
-            string = string[1:]
-            parsed = False
-            for macro in macros:
-                if substr == "$"+macro and macros[macro]:
-                    parsed = True
-                    out_string.append(macros[macro])
-                    break
-            if not parsed:
-                out_string.append(substr)
-        return " ".join(out_string)
+        else:
+            macro_name = string.group(1).lower()
+            return macros[macro_name] if macro_name in macros else ""
 
     @staticmethod
     def escape_string(string, escaped=True):
@@ -99,7 +221,7 @@ class Macro:
 
     @staticmethod
     def contains_file(directory, file_path):
-        if file_path is None:
+        if not file_path:
             return False
         return os.path.normcase(
             os.path.normpath(file_path)
