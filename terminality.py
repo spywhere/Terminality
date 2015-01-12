@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.1.0"
+TERMINALITY_VERSION = "0.1.1"
 
 
 def plugin_loaded():
@@ -23,37 +23,35 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
         execution_unit = None
         execution_units = Settings.get("execution_units")
         additional_execution_units = Settings.get("additional_execution_units")
-        if selector in additional_execution_units:
-            execution_unit = additional_execution_units[selector]
-        elif selector in execution_units:
-            execution_unit = execution_units[selector]
+        if (selector in additional_execution_units and
+                action in additional_execution_units[selector]):
+            execution_unit = additional_execution_units[selector][action]
+        elif (selector in execution_units and
+                action in execution_units[selector]):
+            execution_unit = execution_units[selector][action]
         if execution_unit is None:
             sublime.error_message("There is no such execution unit")
             return
-        if action not in execution_unit:
-            sublime.error_message("There is no such action on execution unit")
-            return
-        execution_action = execution_unit[action]
-        if "command" not in execution_action:
+        if "command" not in execution_unit:
             sublime.error_message("No command to run")
             return
 
         custom_macros = {}
         required_macros = []
-        if "macros" in execution_action:
-            custom_macros = execution_action["macros"]
-        if "required" in execution_action:
-            required_macros = execution_action["required"]
-        if "location" not in execution_action:
-            execution_action["location"] = "$working"
+        if "macros" in execution_unit:
+            custom_macros = execution_unit["macros"]
+        if "required" in execution_unit:
+            required_macros = execution_unit["required"]
+        if "location" not in execution_unit:
+            execution_unit["location"] = "$working"
 
         command_script = Macro.parse_macro(
-            string=execution_action["command"],
+            string=execution_unit["command"],
             custom_macros=custom_macros,
             required=required_macros
         )
         working_dir = Macro.parse_macro(
-            string=execution_action["location"],
+            string=execution_unit["location"],
             custom_macros=custom_macros,
             required=required_macros,
             escaped=False
@@ -69,10 +67,10 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             cmds=command_script,
             view=self.view,
             on_complete=lambda e, r, p: self.on_complete(
-                e, r, p, execution_action
+                e, r, p, execution_unit
             ),
-            read_only=("read_only" in execution_action and
-                       execution_action["read_only"])
+            read_only=("read_only" in execution_unit and
+                       execution_unit["read_only"])
         )
         shell.set_cwd(working_dir)
         shell.start()
@@ -83,15 +81,15 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             set_status=self.set_status
         )
 
-    def on_complete(self, elapse_time, return_code, params, execution_action):
+    def on_complete(self, elapse_time, return_code, params, execution_unit):
         if return_code is not None:
             self.view.set_name(
                 "Terminal Ended (Return: {0}) [{1:.2f}s]".format(
                     return_code, elapse_time
                 )
             )
-            if "close_on_exit" in (execution_action and
-                                   execution_action["close_on_exit"]):
+            if ("close_on_exit" in execution_unit and
+                    execution_unit["close_on_exit"]):
                 self.view.window().focus_view(self.view)
                 self.view.window().run_command("close")
             sublime.set_timeout(lambda: self.set_status(), 3000)
@@ -129,7 +127,10 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                 selector_name = selector
                 break
         if selector_name is None:
-            return self.main_menu
+            if Settings.get("show_nothing_if_nothing"):
+                return None
+            else:
+                return self.main_menu
         # Fetch and Merge execution units
         execution_units = execution_units[selector_name]
         if selector_name in additional_execution_units:
@@ -137,7 +138,14 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         else:
             additional_execution_units = {}
         for key in additional_execution_units:
-            execution_units[key] = additional_execution_units[key]
+            if key in execution_units:
+                for sub_key in additional_execution_units[key]:
+                    execution_units[key][sub_key] = additional_execution_units[key][sub_key]
+            else:
+                execution_units[key] = additional_execution_units[key]
+        if (Settings.get("show_nothing_if_nothing") and
+                len(execution_units) == 0):
+            return None
         # Generate menu
         for action in execution_units:
             execution_unit = execution_units[action]
@@ -171,6 +179,13 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     "action": action
                 }
             }]
+        if (Settings.get("run_if_only_one_available") and
+                len(execution_units) == 1):
+            self.window.run_command(
+                "terminality_run",
+                {"selector": selector_name, "action": action}
+            )
+            return None
         menu["items"] += self.main_menu["items"]
         menu["actions"] += self.main_menu["actions"]
         return menu
@@ -197,5 +212,8 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         if replaceMenu is not None:
             self.qm.setMenu(replaceMenu["name"], replaceMenu["menu"])
             return
-        self.qm.setMenu("main", self.generate_menu())
+        menu = self.generate_menu()
+        if menu is None:
+            return
+        self.qm.setMenu("main", menu)
         self.qm.show(window=self.window, menu=menu, action=action)

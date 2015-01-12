@@ -5,6 +5,11 @@ A Sublime Text 3 Plugin for Sublime Text Internal Terminal
 ### What is Terminality
 Terminality is a plugin to allows Sublime Text to be used as Terminal. This included input and output from/to Sublime Text's buffer. Although Terminality can run many commands, it **is not gurranteed** that it can be used for all commands.
 
+### How to use it?
+Just pressing `Ctrl+Key+R` and the menu will show up, let's you select which command to run.
+
+`Key` is `Alt` in Windows, Linux, `Cmd` in OS X
+
 ### How can I created my own command to be used with Terminality?
 You can create your own command to be used with Terminality by open Terminality user's setting file and set the settings in following format...
 

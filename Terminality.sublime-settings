@@ -57,6 +57,12 @@
         }
     },
 
+    // Set to false to show menu if no command is available
+    "show_nothing_if_nothing": true,
+
+    // Set to true to run command if there is only command available
+    "run_if_only_one_available": true,
+
     // Amount of lines from bottom to snap into autoscrolling area
     // Increase this number if autoscroll is not working properly
     "autoscroll_snap_range": 1,
