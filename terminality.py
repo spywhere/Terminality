@@ -90,8 +90,8 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
                     return_code, elapse_time
                 )
             )
-            if "close_on_exit" in (execution_action and
-                                   execution_action["close_on_exit"]):
+            if ("close_on_exit" in execution_action and
+                    execution_action["close_on_exit"]):
                 self.view.window().focus_view(self.view)
                 self.view.window().run_command("close")
             sublime.set_timeout(lambda: self.set_status(), 3000)
@@ -129,7 +129,10 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                 selector_name = selector
                 break
         if selector_name is None:
-            return self.main_menu
+            if Settings.get("show_nothing_if_nothing"):
+                return None
+            else:
+                return self.main_menu
         # Fetch and Merge execution units
         execution_units = execution_units[selector_name]
         if selector_name in additional_execution_units:
@@ -138,6 +141,9 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
             additional_execution_units = {}
         for key in additional_execution_units:
             execution_units[key] = additional_execution_units[key]
+        if (Settings.get("show_nothing_if_nothing") and
+                len(execution_units) == 0):
+            return None
         # Generate menu
         for action in execution_units:
             execution_unit = execution_units[action]
@@ -171,6 +177,13 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     "action": action
                 }
             }]
+        if (Settings.get("run_if_only_one_available") and
+                len(execution_units) == 1):
+            self.window.run_command(
+                "terminality_run",
+                {"selector": selector_name, "action": action}
+            )
+            return None
         menu["items"] += self.main_menu["items"]
         menu["actions"] += self.main_menu["actions"]
         return menu
@@ -197,5 +210,8 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         if replaceMenu is not None:
             self.qm.setMenu(replaceMenu["name"], replaceMenu["menu"])
             return
-        self.qm.setMenu("main", self.generate_menu())
+        menu = self.generate_menu()
+        if menu is None:
+            return
+        self.qm.setMenu("main", menu)
         self.qm.show(window=self.window, menu=menu, action=action)
