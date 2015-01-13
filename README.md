@@ -2,6 +2,11 @@
 
 A Sublime Text 3 Plugin for Sublime Text's Internal Console
 
+[![Release](https://img.shields.io/github/release/spywhere/Terminality.svg?style=flat)](https://github.com/spywhere/Terminality/releases)|[![Issue](https://img.shields.io/github/issues/spywhere/Terminality.svg?style=flat)](https://github.com/spywhere/Terminality/issues)
+:----:|:----:
+[![Build Status](https://img.shields.io/travis/spywhere/Terminality/master.svg?style=flat)](https://travis-ci.org/spywhere/Terminality)|[![Build Status](https://img.shields.io/travis/spywhere/Terminality/develop.svg?style=flat)](https://travis-ci.org/spywhere/Terminality)
+master|develop
+
 ![Plugin in Action](http://spywhere.github.io/images/terminality/Terminality.gif)
 
 ### What is Terminality
