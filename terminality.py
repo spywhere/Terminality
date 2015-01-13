@@ -61,6 +61,10 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             sublime.error_message("Required macros are missing")
             return
 
+        if Settings.get("debug"):
+            print("Running \"%s\"" % (command_script))
+            print("Working dir is \"%s\"" % (working_dir))
+
         self.view = self.window.new_file()
         self.view.set_name("Running...")
         self.view.set_scratch(True)

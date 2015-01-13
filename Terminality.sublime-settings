@@ -1,4 +1,6 @@
 {
+    // Enable debug mode
+    "debug": false,
     // Execution units for each language
     //   If you want to override this settings,
     //   please set it again in additional_execution_units belows
@@ -8,6 +10,30 @@
                 "description": "Run $file_name with default Lua runtime",
                 "required": ["file"],
                 "command": "lua -l $file"
+            }
+        },
+        "source.c": {
+            "Run $file_name": {
+                "description": "Compile and Run $file_name with default C++ compiler",
+                "required": ["file"],
+                "command": "gcc $file -o $file_without_ext; $file_without_ext",
+                "macros": {
+                    "file_without_ext": [
+                        ["$file", ".*(?=\\.)"]
+                    ]
+                }
+            }
+        },
+        "source.c++": {
+            "Run $file_name": {
+                "description": "Compile and Run $file_name with default C++ compiler",
+                "required": ["file"],
+                "command": "g++ $file -o $file_without_ext; $file_without_ext",
+                "macros": {
+                    "file_without_ext": [
+                        ["$file", ".*(?=\\.)"]
+                    ]
+                }
             }
         },
         "source.python": {

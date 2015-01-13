@@ -2,29 +2,17 @@
 
 A Sublime Text 3 Plugin for Sublime Text's Internal Console
 
-```
-.
-.
-.
-.
-.
-.
-.
-. IMAGE GOES HERE
-.
-.
-.
-.
-.
-.
-.
-```
+![Plugin in Action](http://spywhere.github.io/images/terminality/Terminality.gif)
 
 ### What is Terminality
 Terminality is a plugin to allows Sublime Text to be used as Terminal. This included input and output from/to Sublime Text's buffer. Although Terminality can run many commands, it **is not gurranteed** that it can be used for all commands.
 
 The command is language-based. Current version support the following languages...
 
+- C
+  - Compile and Run 
+- C++
+  - Compile and Run 
 - Lua
   - Run
 - Python

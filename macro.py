@@ -6,6 +6,7 @@ import re
 
 MACRO_PATTERN = re.compile("\\$(\\w+|\\$)")
 SUBSTR_PATTERN = re.compile("^(-?\\d+)?:(-?\\d+)?$")
+MatchObject = type(re.search("", ""))
 
 
 class Macro:
@@ -83,6 +84,7 @@ class Macro:
                                 break
                         if matched and longest_matched < len(macro_req):
                             macro_type = m_type
+                            longest_matched = len(macro_req)
 
                     if macro_output is None:
                         if macro_type and macro_type.endswith("_reg"):
@@ -131,6 +133,7 @@ class Macro:
     def parse_macro(string, macros=None, custom_macros=None, required=None,
                     restricted=None, escaped=False, internal=False):
         if isinstance(string, str):
+            required = required or []
             macros_list = Macro.get_macros(
                 macros=macros,
                 custom_macros=custom_macros,
@@ -163,9 +166,11 @@ class Macro:
                 )
             else:
                 return None
-        else:
+        elif isinstance(string, MatchObject):
             macro_name = string.group(1).lower()
             return macros[macro_name] if macro_name in macros else ""
+        else:
+            return None
 
     @staticmethod
     def escape_string(string, escaped=True):
