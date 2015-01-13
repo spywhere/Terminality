@@ -7,12 +7,13 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.1.1"
+TERMINALITY_VERSION = "0.2.0"
 
 
 def plugin_loaded():
     Settings.reset()
     Settings.startup()
+    print("[Terminality] v%s" % (TERMINALITY_VERSION))
 
 
 class TerminalityRunCommand(sublime_plugin.WindowCommand):
@@ -48,17 +49,21 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
         command_script = Macro.parse_macro(
             string=execution_unit["command"],
             custom_macros=custom_macros,
-            required=required_macros
+            required=required_macros,
+            escaped=True
         )
         working_dir = Macro.parse_macro(
             string=execution_unit["location"],
             custom_macros=custom_macros,
-            required=required_macros,
-            escaped=False
+            required=required_macros
         )
         if command_script is None or working_dir is None:
             sublime.error_message("Required macros are missing")
             return
+
+        if Settings.get("debug"):
+            print("Running \"%s\"" % (command_script))
+            print("Working dir is \"%s\"" % (working_dir))
 
         self.view = self.window.new_file()
         self.view.set_name("Running...")
@@ -151,16 +156,20 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
             execution_unit = execution_units[action]
             custom_macros = {}
             required_macros = []
+            platforms = None
             if "macros" in execution_unit:
                 custom_macros = execution_unit["macros"]
             if "required" in execution_unit:
                 required_macros = execution_unit["required"]
+            if "platforms" in execution_unit:
+                platforms = execution_unit["platforms"]
             action_name = Macro.parse_macro(
                 string=action,
                 custom_macros=custom_macros,
-                required=required_macros,
-                escaped=False
+                required=required_macros
             )
+            if platforms and sublime.platform() not in platforms:
+                continue
             if action_name is None:
                 continue
             dest = action_name + " command"
@@ -168,8 +177,7 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                 dest = Macro.parse_macro(
                     string=execution_unit["description"],
                     custom_macros=custom_macros,
-                    required=required_macros,
-                    escaped=False
+                    required=required_macros
                 )
             menu["items"] += [[action_name, dest]]
             menu["actions"] += [{
