@@ -6,14 +6,16 @@
     //   please set it again in additional_execution_units belows
     "execution_units": {
         "source.lua": {
-            "Run $file_name": {
+            "run": {
+                "name": "Run $file_name",
                 "description": "Run $file_name with default Lua runtime",
                 "required": ["file"],
                 "command": "lua -l $file"
             }
         },
         "source.c": {
-            "Run $file_name": {
+            "run": {
+                "name": "Run $file_name",
                 "description": "Compile and Run $file_name with default C++ compiler",
                 "required": ["file"],
                 "command": "gcc $file -o $file_without_ext; $file_without_ext",
@@ -25,7 +27,8 @@
             }
         },
         "source.c++": {
-            "Run $file_name": {
+            "run": {
+                "name": "Run $file_name",
                 "description": "Compile and Run $file_name with default C++ compiler",
                 "required": ["file"],
                 "command": "g++ $file -o $file_without_ext; $file_without_ext",
@@ -37,29 +40,34 @@
             }
         },
         "source.python": {
-            "Run $file_name": {
+            "python2run": {
+                "name": "Run $file_name",
                 "description": "Run $file_name as Python 2.7 document",
                 "required": ["file"],
                 "command": "python -u $file"
             },
-            "Run $file_name in python3": {
+            "python3run": {
+                "name": "Run $file_name in python3",
                 "description": "Run $file_name as Python 3 document",
                 "required": ["file"],
                 "command": "python3 -u $file"
             }
         },
         "source.ruby": {
-            "Run $file_name": {
+            "run": {
+                "name": "Run $file_name",
                 "description": "Run $file_name with default Ruby runtime",
                 "required": ["file"],
                 "command": "ruby $file"
             }
         },
         "source.swift": {
-            "Run $file_name": {
+            "run": {
+                "name": "Run $file_name",
                 "description": "Run $file_name with default Swift runtime",
                 "required": ["file"],
-                "command": "swift $file"
+                "command": "swift $file",
+                "platforms": ["osx"]
             }
         }
     },

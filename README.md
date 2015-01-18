@@ -15,9 +15,9 @@ Terminality is a plugin to allows Sublime Text to be used as Terminal. This incl
 The command is language-based. Current version support the following languages...
 
 - C
-  - Compile and Run 
+  - Compile and Run
 - C++
-  - Compile and Run 
+  - Compile and Run
 - Lua
   - Run
 - Python
@@ -25,7 +25,7 @@ The command is language-based. Current version support the following languages..
   - Run as Python 3
 - Ruby
   - Run
-- Swift
+- Swift (OS X only)
   - Run
 
 Is that it? No, Terminality allows you to add your own commands to be used inside Sublime Text. Please see the section belows for more informations.
@@ -35,6 +35,15 @@ Just pressing `Ctrl+Key+R` and the menu will show up, let's you select which com
 
 `Key` is `Alt` in Windows, Linux, `Cmd` in OS X
 
+### How Terminality can helps my current workflow?
+Good question! You might think Terminality is just a plugin that showing a list of commands which you already know how to use it. Sure, that what it is under the hood but Terminality does not stop there. Here are the list of somethings that Terminality can do for you...
+
+- Run tests on your project
+- Exclusively build and run your project without affecting another project
+- Dynamically run Sublime Text's commands based on your project or current file
+- One keystroke project deployment
+- And much more...
+
 ### How can I created my own command to be used with Terminality?
 You can create your own command to be used with Terminality by open Terminality user's setting file and set the settings in following format...
 
@@ -42,41 +51,58 @@ You can create your own command to be used with Terminality by open Terminality 
 {
 	... Your other settings ...
 	"additional_execution_units": {
-		"<Language scope to be used with>": {
+		"<Language scope to be used with or '*' to apply to any language>": {
 			"<Action Name such as Compile or Run>": {
 				// All keys in here can be omitted except "command"
+				"name": "<String or Macro for overriding action name>",
 				"location": "<String or Macro for location path will be used to run command>",
 				"required": [<List of macro that have to be set before run (without $)>]
 				"command": "<String or Macro to define command>",
-				"platforms": [<List of supported platforms (value must be from sublime.platform())>]
+				"window_command": "<String or Macro to define command to run in Sublime Text's window>",
+				"view_command": "String or Macro to define command to run in Sublime Text's view",
+				"args": {<A dictionary to define arguments (each value in key will be parsed)>},
+				"platforms": [<List of supported platforms (value must be in "<os>-<arch>", "<os>" or "<arch>" format)>]
 				"read_only": <Boolean indicated whether Terminal is read-only or not>,
 				"close_on_exit" <Boolean indicated whether buffer will be closed after the Terminal is terminated>
 				"macros": {<A dictionary contains custom macros (See Macros section belows)>}
-			}
+			},
+			// If set action to other type (not dictionary) then specified action will be removed
+			"<Action Name such as Compile or Run>": 0
 		}
 	},
 	... Your other settings ...
 }
 ```
 
-Every macro name (except inside `required`) should have `$` prefix.
+##### Limitations/Rules
+
+- Every macro name (except inside `required`) should have `$` prefix.
+- Each action must contains one of `command`, `window_command` and `view_command` only
+- `location`, `required`, `read_only` and `close_on_exit` only works with `command` only
+- `args` only works with `window_command` or `view_command` only
 
 See example inside Terminality's settings file
 
 ### Predefined Macros
 `file`: Path to current working file
 
-`file_name`: Current working file name
+`file_name`: Name of `file`
 
 `working`: This will use `working_project` but if not found it will use `project` and if still not found it will use `parent`
 
+`working_name`: Name of `working`
+
 `working_project`: Project folder contains current working file
+
+`working_project_name`: Name of `working_project`
 
 `project`: First project folder
 
+`project_name`: Name of `project`
+
 `parent`: Parent folder contains current working file
 
-`parent_name`: Parent folder name
+`parent_name`: Name of `parent`
 
 `packages_path`: Path to Sublime Text's packages folder
 

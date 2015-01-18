@@ -57,9 +57,9 @@ class Settings:
         else:
             project_data = sublime.active_window().project_data()
             if (project_data is not None and
-                    "javatar" in project_data and
-                    key in project_data["javatar"]):
-                return project_data["javatar"][key]
+                    "terminality" in project_data and
+                    key in project_data["terminality"]):
+                return project_data["terminality"][key]
         return default
 
     @staticmethod
@@ -121,19 +121,19 @@ class Settings:
             project_data = window.project_data()
             if val is None:
                 if (project_data is not None and
-                        "javatar" in project_data and
-                        key in project_data["javatar"]):
-                    del project_data["javatar"][key]
+                        "terminality" in project_data and
+                        key in project_data["terminality"]):
+                    del project_data["terminality"][key]
                 else:
                     # Return here so it won't wasting time saving old settings
                     return
             else:
-                if "javatar" in project_data:
-                    data = project_data["javatar"]
+                if "terminality" in project_data:
+                    data = project_data["terminality"]
                 else:
                     data = {}
                 data[key] = val
-                project_data["javatar"] = data
+                project_data["terminality"] = data
             window.set_project_data(project_data)
 
     @staticmethod
