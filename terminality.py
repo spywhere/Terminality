@@ -23,17 +23,44 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
 
         execution_unit = None
         execution_units = Settings.get("execution_units")
-        additional_execution_units = Settings.get("additional_execution_units")
-        if (selector in additional_execution_units and
-                action in additional_execution_units[selector]):
-            execution_unit = additional_execution_units[selector][action]
-        elif (selector in execution_units and
-                action in execution_units[selector]):
-            execution_unit = execution_units[selector][action]
+        # Global
+        additional_execution_units = Settings.get_global(
+            "additional_execution_units",
+            default={}
+        )
+        for sel in [selector, "*"]:
+            if (sel in additional_execution_units and
+                    action in additional_execution_units[sel]):
+                execution_unit = additional_execution_units[sel][action]
+                if not isinstance(execution_unit, dict):
+                    continue
+        # Local
+        additional_execution_units = Settings.get_local(
+            "additional_execution_units",
+            default={}
+        )
+        for sel in [selector, "*"]:
+            if (sel in additional_execution_units and
+                    action in additional_execution_units[sel]):
+                execution_unit = additional_execution_units[sel][action]
+                if not isinstance(execution_unit, dict):
+                    continue
+            elif (sel in execution_units and
+                    action in execution_units[sel]):
+                execution_unit = execution_units[sel][action]
+                if not isinstance(execution_unit, dict):
+                    continue
         if execution_unit is None:
             sublime.error_message("There is no such execution unit")
             return
-        if "command" not in execution_unit:
+        command = None
+        command_type = None
+        for key in ["command", "window_command", "view_command"]:
+            if key in execution_unit:
+                command_type = key
+                command = execution_unit[key]
+                break
+        if not command:
             sublime.error_message("No command to run")
             return
 
@@ -47,44 +74,64 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             execution_unit["location"] = "$working"
 
         command_script = Macro.parse_macro(
-            string=execution_unit["command"],
+            string=command,
             custom_macros=custom_macros,
             required=required_macros,
             escaped=True
         )
-        working_dir = Macro.parse_macro(
-            string=execution_unit["location"],
-            custom_macros=custom_macros,
-            required=required_macros
-        )
-        if command_script is None or working_dir is None:
-            sublime.error_message("Required macros are missing")
-            return
 
-        if Settings.get("debug"):
-            print("Running \"%s\"" % (command_script))
-            print("Working dir is \"%s\"" % (working_dir))
+        if command_type == "window_command" or command_type == "view_command":
+            args = {}
+            if "args" in execution_unit:
+                args = execution_unit["args"]
+            for key in args:
+                args[key] = Macro.parse_macro(
+                    string=args[key],
+                    custom_macros=custom_macros
+                )
+            if command_script is None:
+                sublime.error_message("Required macros are missing")
+                return
+            if command_type == "window_command":
+                self.window.run_command(command_script, args)
+            else:
+                self.window.active_view().run_command(command_script, args)
+        elif command_type == "command":
+            working_dir = Macro.parse_macro(
+                string=execution_unit["location"],
+                custom_macros=custom_macros,
+                required=required_macros
+            )
+            if command_script is None or working_dir is None:
+                sublime.error_message(
+                    "Required macros are missing or location is invalid"
+                )
+                return
 
-        self.view = self.window.new_file()
-        self.view.set_name("Running...")
-        self.view.set_scratch(True)
-        shell = GenericShell(
-            cmds=command_script,
-            view=self.view,
-            on_complete=lambda e, r, p: self.on_complete(
-                e, r, p, execution_unit
-            ),
-            read_only=("read_only" in execution_unit and
-                       execution_unit["read_only"])
-        )
-        shell.set_cwd(working_dir)
-        shell.start()
-        ThreadProgress(
-            thread=shell,
-            message="Running",
-            success_message="Terminal has been stopped",
-            set_status=self.set_status
-        )
+            if Settings.get("debug"):
+                print("Running \"%s\"" % (command_script))
+                print("Working dir is \"%s\"" % (working_dir))
+
+            self.view = self.window.new_file()
+            self.view.set_name("Running...")
+            self.view.set_scratch(True)
+            shell = GenericShell(
+                cmds=command_script,
+                view=self.view,
+                on_complete=lambda e, r, p: self.on_complete(
+                    e, r, p, execution_unit
+                ),
+                read_only=("read_only" in execution_unit and
+                           execution_unit["read_only"])
+            )
+            shell.set_cwd(working_dir)
+            shell.start()
+            ThreadProgress(
+                thread=shell,
+                message="Running",
+                success_message="Terminal has been stopped",
+                set_status=self.set_status
+            )
 
     def on_complete(self, elapse_time, return_code, params, execution_unit):
         if return_code is not None:
@@ -125,35 +172,57 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
     def generate_menu(self):
         menu = {"items": [], "actions": []}
         execution_units = Settings.get("execution_units")
-        additional_execution_units = Settings.get("additional_execution_units")
-        selector_name = None
+        sel_name = None
         for selector in execution_units:
             if len(self.window.active_view().find_by_selector(selector)) > 0:
-                selector_name = selector
+                sel_name = selector
                 break
-        if selector_name is None:
-            if Settings.get("show_nothing_if_nothing"):
-                return None
-            else:
-                return self.main_menu
-        # Fetch and Merge execution units
-        execution_units = execution_units[selector_name]
-        if selector_name in additional_execution_units:
-            additional_execution_units = additional_execution_units[selector_name]
+        if sel_name and sel_name in execution_units:
+            execution_units = execution_units[sel_name]
         else:
-            additional_execution_units = {}
-        for key in additional_execution_units:
-            if key in execution_units:
-                for sub_key in additional_execution_units[key]:
-                    execution_units[key][sub_key] = additional_execution_units[key][sub_key]
-            else:
-                execution_units[key] = additional_execution_units[key]
-        if (Settings.get("show_nothing_if_nothing") and
-                len(execution_units) == 0):
-            return None
+            execution_units = {}
+        for selector_name in [x for x in [sel_name, "*"] if x is not None]:
+            # Global
+            additional_execution_units = Settings.get_global(
+                "additional_execution_units",
+                default={}
+            )
+            if selector_name in additional_execution_units:
+                additional_execution_units = additional_execution_units[selector_name]
+                for key in additional_execution_units:
+                    if (key in execution_units and
+                            isinstance(additional_execution_units[key], dict)):
+                        for sub_key in additional_execution_units[key]:
+                            execution_units[key][sub_key] = additional_execution_units[key][sub_key]
+                    else:
+                        execution_units[key] = additional_execution_units[key]
+                    if isinstance(additional_execution_units[key], dict):
+                        execution_units[key]["selector"] = sel_name
+            # Local
+            additional_execution_units = Settings.get_local(
+                "additional_execution_units",
+                default={}
+            )
+            if selector_name in additional_execution_units:
+                additional_execution_units = additional_execution_units[selector_name]
+                for key in additional_execution_units:
+                    if (key in execution_units and
+                            isinstance(additional_execution_units[key], dict)):
+                        for sub_key in additional_execution_units[key]:
+                            execution_units[key][sub_key] = additional_execution_units[key][sub_key]
+                    else:
+                        execution_units[key] = additional_execution_units[key]
+                    if isinstance(additional_execution_units[key], dict):
+                        execution_units[key]["selector"] = sel_name
         # Generate menu
         for action in execution_units:
             execution_unit = execution_units[action]
+            if not isinstance(execution_unit, dict):
+                continue
+            if "selector" in execution_unit:
+                selector_name = execution_unit["selector"]
+            else:
+                selector_name = sel_name
             custom_macros = {}
             required_macros = []
             platforms = None
@@ -168,11 +237,28 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                 custom_macros=custom_macros,
                 required=required_macros
             )
-            if platforms and sublime.platform() not in platforms:
-                continue
+            if platforms:
+                matched = False
+                current_platforms = [
+                    sublime.platform() + "-" + sublime.arch(),
+                    sublime.platform(),
+                    sublime.arch()
+                ]
+                for platform in current_platforms:
+                    if platform in platforms:
+                        matched = True
+                        break
+                if not matched:
+                    continue
             if action_name is None:
                 continue
             dest = action_name + " command"
+            if "name" in execution_unit:
+                action_name = Macro.parse_macro(
+                    string=execution_unit["name"],
+                    custom_macros=custom_macros,
+                    required=required_macros
+                )
             if "description" in execution_unit:
                 dest = Macro.parse_macro(
                     string=execution_unit["description"],
@@ -193,6 +279,8 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                 "terminality_run",
                 {"selector": selector_name, "action": action}
             )
+            return None
+        if len(menu["items"]) <= 0 and Settings.get("show_nothing_if_nothing"):
             return None
         menu["items"] += self.main_menu["items"]
         menu["actions"] += self.main_menu["actions"]

@@ -17,8 +17,11 @@ class Macro:
             "file": Macro.get_file_path(),
             "file_name": Macro.get_file_name(),
             "working": Macro.get_working_dir(),
+            "working_name": Macro.get_working_name(),
             "working_project": Macro.get_working_project_dir(),
+            "working_project_name": Macro.get_working_project_name(),
             "project": Macro.get_project_dir(),
+            "project_name": Macro.get_project_name(),
             "parent": Macro.get_parent_dir(),
             "parent_name": Macro.get_parent_name(),
             "packages_path": Macro.get_packages_path(),
@@ -183,6 +186,11 @@ class Macro:
                 Macro.get_parent_dir())
 
     @staticmethod
+    def get_working_name():
+        working = Macro.get_working_dir()
+        return os.path.basename(working) if working else None
+
+    @staticmethod
     def get_working_project_dir():
         folders = sublime.active_window().folders()
         for folder in folders:
@@ -191,11 +199,21 @@ class Macro:
         return None
 
     @staticmethod
+    def get_working_project_name():
+        working_project = Macro.get_working_project_dir()
+        return os.path.basename(working_project) if working_project else None
+
+    @staticmethod
     def get_project_dir():
         folders = sublime.active_window().folders()
         if len(folders) > 0:
             return folders[0]
         return None
+
+    @staticmethod
+    def get_project_name():
+        project = Macro.get_project_dir()
+        return os.path.basename(project) if project else None
 
     @staticmethod
     def get_parent_dir():

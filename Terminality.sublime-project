@@ -1,0 +1,28 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "."
+		}
+	],
+	"terminality": {
+		"run_if_only_one_available": false,
+		"additional_execution_units": {
+			"source.python": {
+				"python2run": 0,
+				"python3run": 0
+			},
+			"*": {
+				"Run $working_name Tests": {
+					"description": "Run unit testing on $working_name project",
+					"window_command": "unit_testing",
+					"args": {
+						"package": "<current>",
+						"output": "panel"
+					}
+				}
+			}
+		}
+	}
+}
