@@ -1,0 +1,10 @@
+Terminality has been updated to v0.1.1
+
+Changelogs:
+ - Fix "close_on_exit" logic bug
+ - Execution units merge improvements
+ - Add "show_nothing_if_nothing" and "run_if_only_one_available" settings
+ - Add EditorConfig's config file
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file

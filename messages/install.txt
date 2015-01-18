@@ -1,0 +1,13 @@
+Terminality has been successfully installed
+
+Please note that Terminality supports these languages by default but
+    not limited to...
+
+    - C/C++
+    - Lua
+    - Python
+    - Ruby
+    - Swift (OS X only)
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file

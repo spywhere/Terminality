@@ -35,6 +35,15 @@ Just pressing `Ctrl+Key+R` and the menu will show up, let's you select which com
 
 `Key` is `Alt` in Windows, Linux, `Cmd` in OS X
 
+### How Terminality can helps my current workflow?
+Good question! You might think Terminality is just a plugin that showing a list of commands which you already know how to use it. Sure, that what it is under the hood but Terminality does not stop there. Here are the list of somethings that Terminality can do for you...
+
+- Run tests on your project
+- Exclusively build and run your project without affecting another project
+- Dynamically run Sublime Text's commands based on your project or current file
+- One keystroke project deployment
+- And much more...
+
 ### How can I created my own command to be used with Terminality?
 You can create your own command to be used with Terminality by open Terminality user's setting file and set the settings in following format...
 

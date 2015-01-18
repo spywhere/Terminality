@@ -1,0 +1,13 @@
+Terminality has been updated to v0.3.0
+
+Changelogs:
+ - More pre-defined macros ("working_name", "working_project_name"
+       and "project_name")
+ - Fix Terminality load settings from invalid project data key
+ - '*' selector for any language selection
+ - Capable of running Sublime Text's commands
+ - Ability to override action name (via "name")
+ - Merge related tests together
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file
