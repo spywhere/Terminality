@@ -8,8 +8,8 @@ class TerminalityUtilsCommand(sublime_plugin.TextCommand):
             self.view.insert(edit, 0, text)
         elif util_type == "add":
             self.view.insert(edit, self.view.size(), text)
-        elif util_type == "replace":
-            self.view.insert(edit, region, text)
+        elif util_type == "erase":
+            self.view.erase(edit, sublime.Region(region[0], region[1]))
         elif util_type == "clear":
             self.view.erase(edit, sublime.Region(0, self.view.size()))
         elif util_type == "set_read_only":

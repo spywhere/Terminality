@@ -14,15 +14,40 @@ class Macro:
     def get_macros(macros=None, custom_macros=None,
                    required=None, restricted=None):
         macros = macros or {
-            "file": Macro.get_file_path(),
+            "file": Macro.get_file_path(
+                relative=False
+            ),
+            "file_relative": Macro.get_file_path(
+                relative=True
+            ),
             "file_name": Macro.get_file_name(),
-            "working": Macro.get_working_dir(),
+            "working": Macro.get_working_dir(
+                relative=False
+            ),
+            "working_relative": Macro.get_working_dir(
+                relative=True
+            ),
             "working_name": Macro.get_working_name(),
-            "working_project": Macro.get_working_project_dir(),
+            "working_project": Macro.get_working_project_dir(
+                relative=False
+            ),
+            "working_project_relative": Macro.get_working_project_dir(
+                relative=True
+            ),
             "working_project_name": Macro.get_working_project_name(),
-            "project": Macro.get_project_dir(),
+            "project": Macro.get_project_dir(
+                relative=False
+            ),
+            "project_relative": Macro.get_project_dir(
+                relative=True
+            ),
             "project_name": Macro.get_project_name(),
-            "parent": Macro.get_parent_dir(),
+            "parent": Macro.get_parent_dir(
+                relative=False
+            ),
+            "parent_relative": Macro.get_parent_dir(
+                relative=True
+            ),
             "parent_name": Macro.get_parent_name(),
             "packages_path": Macro.get_packages_path(),
             "sep": Macro.get_separator(),
@@ -180,31 +205,37 @@ class Macro:
         return shlex.quote(string) if escaped else string
 
     @staticmethod
-    def get_working_dir():
-        return (Macro.get_working_project_dir() or
-                Macro.get_project_dir() or
-                Macro.get_parent_dir())
+    def get_working_dir(relative=False):
+        if relative:
+            return "." if Macro.get_working_dir(relative=False) else None
+        return (Macro.get_working_project_dir(relative=False) or
+                Macro.get_project_dir(relative=False) or
+                Macro.get_parent_dir(relative=False))
 
     @staticmethod
     def get_working_name():
-        working = Macro.get_working_dir()
+        working = Macro.get_working_dir(relative=False)
         return os.path.basename(working) if working else None
 
     @staticmethod
-    def get_working_project_dir():
+    def get_working_project_dir(relative=False):
+        if relative:
+            return "." if Macro.get_working_project_dir(relative=False) else None
         folders = sublime.active_window().folders()
         for folder in folders:
-            if Macro.contains_file(folder, Macro.get_file_path()):
+            if Macro.contains_file(folder, Macro.get_file_path(relative=False)):
                 return folder
         return None
 
     @staticmethod
     def get_working_project_name():
-        working_project = Macro.get_working_project_dir()
+        working_project = Macro.get_working_project_dir(relative=False)
         return os.path.basename(working_project) if working_project else None
 
     @staticmethod
-    def get_project_dir():
+    def get_project_dir(relative=False):
+        if relative:
+            return "." if Macro.get_project_dir(relative=False) else None
         folders = sublime.active_window().folders()
         if len(folders) > 0:
             return folders[0]
@@ -212,17 +243,24 @@ class Macro:
 
     @staticmethod
     def get_project_name():
-        project = Macro.get_project_dir()
+        project = Macro.get_project_dir(relative=False)
         return os.path.basename(project) if project else None
 
     @staticmethod
-    def get_parent_dir():
-        file_path = Macro.get_file_path()
+    def get_parent_dir(relative=False):
+        if relative:
+            parent_dir = Macro.get_parent_dir(relative=False)
+            working_dir = Macro.get_working_dir(relative=False)
+            return os.path.relpath(
+                parent_dir,
+                working_dir
+            ) if parent_dir and working_dir else None
+        file_path = Macro.get_file_path(relative=False)
         return os.path.dirname(file_path) if file_path else None
 
     @staticmethod
     def get_parent_name():
-        parent_path = Macro.get_parent_dir()
+        parent_path = Macro.get_parent_dir(relative=False)
         return os.path.basename(parent_path) if parent_path else None
 
     @staticmethod
@@ -230,12 +268,19 @@ class Macro:
         return sublime.packages_path()
 
     @staticmethod
-    def get_file_path():
+    def get_file_path(relative=False):
+        if relative:
+            file_path = Macro.get_file_path(relative=False)
+            working_dir = Macro.get_working_dir(relative=False)
+            return os.path.relpath(
+                file_path,
+                working_dir
+            ) if file_path and working_dir else None
         return sublime.active_window().active_view().file_name()
 
     @staticmethod
     def get_file_name():
-        file_path = Macro.get_file_path()
+        file_path = Macro.get_file_path(relative=False)
         return os.path.basename(file_path) if file_path else None
 
     @staticmethod
