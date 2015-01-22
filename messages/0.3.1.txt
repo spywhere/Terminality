@@ -1,0 +1,9 @@
+Terminality has been updated to v0.3.1
+
+Changelogs:
+ - Add "Run Terminal here" command for OS X and Linux
+ - Fix selector merging not properly merged
+ - Add relative path macro
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file
