@@ -14,10 +14,11 @@ Generic shell implementations, derived from Sublime Text's exec command
 
 
 class GenericShell(threading.Thread):
-    def __init__(self, cmds, view, on_complete=None, read_only=False, to_console=False, params=None):
+    def __init__(self, cmds, view, on_complete=None, no_echo=False, read_only=False, to_console=False, params=None):
         self.params = params
         self.cmds = cmds
         self.on_complete = on_complete
+        self.no_echo = no_echo
         self.read_only = read_only
         self.view = view
         self.to_console = to_console
@@ -76,6 +77,8 @@ class GenericShell(threading.Thread):
             elif len(self.old_data) < self.view.size():
                 self.data_in = self.view.substr(sublime.Region(len(self.old_data), self.view.size()))
             if "\n" in self.data_in:
+                if self.no_echo:
+                    self.view.run_command("terminality_utils", {"util_type": "erase", "region": [len(self.old_data), self.view.size()]})
                 os.write(self.proc.stdin.fileno(), self.data_in.encode("UTF-8"))
                 self.old_data = self.view.substr(sublime.Region(0, self.view.size()))
                 self.data_in = ""

@@ -14,7 +14,9 @@
 				"python3run": 0
 			},
 			"*": {
-				"Run $working_name Tests": {
+				"terminal": 0,
+				"unittest": {
+					"name": "Run $working_name Tests",
 					"description": "Run unit testing on $working_name project",
 					"window_command": "unit_testing",
 					"args": {

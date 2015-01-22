@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.3.0"
+TERMINALITY_VERSION = "0.3.1"
 
 
 def plugin_loaded():
@@ -18,9 +18,6 @@ def plugin_loaded():
 
 class TerminalityRunCommand(sublime_plugin.WindowCommand):
     def run(self, selector=None, action=None):
-        if selector is None:
-            return
-
         execution_unit = None
         execution_units = Settings.get("execution_units")
         # Global
@@ -28,7 +25,7 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             "additional_execution_units",
             default={}
         )
-        for sel in [selector, "*"]:
+        for sel in [x for x in [selector, "*"] if x is not None]:
             if (sel in additional_execution_units and
                     action in additional_execution_units[sel]):
                 execution_unit = additional_execution_units[sel][action]
@@ -39,7 +36,7 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             "additional_execution_units",
             default={}
         )
-        for sel in [selector, "*"]:
+        for sel in [x for x in [selector, "*"] if x is not None]:
             if (sel in additional_execution_units and
                     action in additional_execution_units[sel]):
                 execution_unit = additional_execution_units[sel][action]
@@ -121,6 +118,8 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
                 on_complete=lambda e, r, p: self.on_complete(
                     e, r, p, execution_unit
                 ),
+                no_echo=("no_echo" in execution_unit and
+                         execution_unit["no_echo"]),
                 read_only=("read_only" in execution_unit and
                            execution_unit["read_only"])
             )
@@ -132,6 +131,8 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
                 success_message="Terminal has been stopped",
                 set_status=self.set_status
             )
+        elif Settings.get("debug"):
+            print("Invalid command type")
 
     def on_complete(self, elapse_time, return_code, params, execution_unit):
         if return_code is not None:
@@ -171,16 +172,17 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
 
     def generate_menu(self):
         menu = {"items": [], "actions": []}
-        execution_units = Settings.get("execution_units")
+        execution_units_map = Settings.get("execution_units")
         sel_name = None
-        for selector in execution_units:
+        for selector in execution_units_map:
             if len(self.window.active_view().find_by_selector(selector)) > 0:
                 sel_name = selector
                 break
-        if sel_name and sel_name in execution_units:
-            execution_units = execution_units[sel_name]
-        else:
-            execution_units = {}
+        execution_units = {}
+        for selector in [x for x in [sel_name, "*"] if x is not None]:
+            if selector in execution_units_map:
+                for action in execution_units_map[selector]:
+                    execution_units[action] = execution_units_map[selector][action]
         for selector_name in [x for x in [sel_name, "*"] if x is not None]:
             # Global
             additional_execution_units = Settings.get_global(
