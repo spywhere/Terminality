@@ -1,0 +1,7 @@
+Terminality has been updated to v0.3.2
+
+Changelogs:
+ - Terminality's commands should now works on Windows
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file
