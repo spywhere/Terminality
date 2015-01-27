@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.3.1"
+TERMINALITY_VERSION = "0.3.2"
 
 
 def plugin_loaded():
@@ -70,12 +70,15 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
         if "location" not in execution_unit:
             execution_unit["location"] = "$working"
 
-        command_script = Macro.parse_macro(
-            string=command,
-            custom_macros=custom_macros,
-            required=required_macros,
-            escaped=True
-        )
+        is_not_windows = sublime.platform() != "windows"
+        command_script = [
+            Macro.parse_macro(
+                string=cmd,
+                custom_macros=custom_macros,
+                required=required_macros,
+                escaped=is_not_windows
+            ) for cmd in command.split(" ")
+        ]
 
         if command_type == "window_command" or command_type == "view_command":
             args = {}
@@ -90,9 +93,9 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
                 sublime.error_message("Required macros are missing")
                 return
             if command_type == "window_command":
-                self.window.run_command(command_script, args)
+                self.window.run_command(" ".join(command_script), args)
             else:
-                self.window.active_view().run_command(command_script, args)
+                self.window.active_view().run_command(" ".join(command_script), args)
         elif command_type == "command":
             working_dir = Macro.parse_macro(
                 string=execution_unit["location"],
@@ -106,12 +109,14 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
                 return
 
             if Settings.get("debug"):
-                print("Running \"%s\"" % (command_script))
+                print("Running \"%s\"" % (" ".join(command_script)))
                 print("Working dir is \"%s\"" % (working_dir))
 
             self.view = self.window.new_file()
             self.view.set_name("Running...")
             self.view.set_scratch(True)
+            if is_not_windows:
+                command_script = " ".join(command_script)
             shell = GenericShell(
                 cmds=command_script,
                 view=self.view,
