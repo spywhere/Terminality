@@ -2,10 +2,10 @@
 
 A Sublime Text 3 Plugin for Sublime Text's Internal Console
 
-[![Release](https://img.shields.io/github/release/spywhere/Terminality.svg?style=flat)](https://github.com/spywhere/Terminality/releases)|[![Issue](https://img.shields.io/github/issues/spywhere/Terminality.svg?style=flat)](https://github.com/spywhere/Terminality/issues)
-:----:|:----:
-[![Build Status](https://img.shields.io/travis/spywhere/Terminality/master.svg?style=flat)](https://travis-ci.org/spywhere/Terminality)|[![Build Status](https://img.shields.io/travis/spywhere/Terminality/develop.svg?style=flat)](https://travis-ci.org/spywhere/Terminality)
-master|develop
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/spywhere/Terminality?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)|[![Code Climate](https://img.shields.io/codeclimate/github/spywhere/Terminality.svg)](https://codeclimate.com/github/spywhere/Terminality)|[![Release](https://img.shields.io/github/release/spywhere/Terminality.svg?style=flat)](https://github.com/spywhere/Terminality/releases)
+:---:|:---:|:---:
+master|[![Build Status](https://img.shields.io/travis/spywhere/Terminality/master.svg?style=flat)](https://travis-ci.org/spywhere/Terminality)|[![Issues](https://img.shields.io/github/issues/spywhere/Terminality.svg?style=flat)](https://github.com/spywhere/Terminality/issues)
+develop|[![Build Status](https://img.shields.io/travis/spywhere/Terminality/develop.svg?style=flat)](https://travis-ci.org/spywhere/Terminality)|[![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](https://github.com/spywhere/Terminality/blob/master/LICENSE)
 
 ![Plugin in Action](http://spywhere.github.io/images/terminality/Terminality.gif)
 
