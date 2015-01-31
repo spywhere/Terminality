@@ -134,7 +134,8 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
                 thread=shell,
                 message="Running",
                 success_message="Terminal has been stopped",
-                set_status=self.set_status
+                set_status=self.set_status,
+                view=self.view
             )
         elif Settings.get("debug"):
             print("Invalid command type")

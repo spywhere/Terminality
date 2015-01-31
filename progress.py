@@ -3,7 +3,7 @@ import sublime
 
 class ThreadProgress():
     def __init__(self, thread, message, success_message=None, anim_fx=None,
-                 set_status=None):
+                 set_status=None, view=None):
         self.thread = thread
         self.message = message
         self.success_message = success_message
@@ -11,10 +11,12 @@ class ThreadProgress():
             self.anim_fx = anim_fx
         if set_status is not None:
             self.set_status = set_status
+        self.view = view
         sublime.set_timeout(lambda: self.run(0), 100)
 
     def anim_fx(self, i, message, thread):
-        return {"i": (i + 1) % 3, "message": "%s %s" % (self.message, "." * (i + 1)), "delay": 300}
+        chars = "⢁⡈⠔⠢"
+        return {"i": (i + 1) % len(chars), "message": "%s [%s]" % (self.message, chars[i]), "delay": 150}
 
     def set_status(self, status=""):
         sublime.status_message(status)
@@ -35,4 +37,6 @@ class ThreadProgress():
         if hasattr(self.thread, "msg"):
             tmsg = self.thread.msg
         self.set_status(info["message"] + tmsg)
+        if self.view:
+            self.view.set_name(info["message"] + tmsg)
         sublime.set_timeout(lambda: self.run(info["i"]), info["delay"])
