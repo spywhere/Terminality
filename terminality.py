@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.3.2"
+TERMINALITY_VERSION = "0.3.3"
 
 
 def plugin_loaded():
@@ -184,6 +184,13 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
             if len(self.window.active_view().find_by_selector(selector)) > 0:
                 sel_name = selector
                 break
+        if not sel_name:
+            for selector in Settings.get("additional_execution_units"):
+                if len(self.window.active_view().find_by_selector(selector)) > 0:
+                    sel_name = selector
+                    break
+        if Settings.get("debug") and not sel_name:
+            print("Selector is not found")
         execution_units = {}
         for selector in [x for x in [sel_name, "*"] if x is not None]:
             if selector in execution_units_map:
@@ -222,6 +229,8 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                         execution_units[key] = additional_execution_units[key]
                     if isinstance(additional_execution_units[key], dict):
                         execution_units[key]["selector"] = sel_name
+        if Settings.get("debug") and not execution_units:
+            print("Execution units is empty")
         # Generate menu
         for action in execution_units:
             execution_unit = execution_units[action]
@@ -259,6 +268,8 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                 if not matched:
                     continue
             if action_name is None:
+                if Settings.get("debug"):
+                    print("Required params is not completed")
                 continue
             dest = action_name + " command"
             if "name" in execution_unit:
