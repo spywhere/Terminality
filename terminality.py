@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.3.3"
+TERMINALITY_VERSION = "0.3.4"
 
 
 def plugin_loaded():
@@ -25,7 +25,7 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             "additional_execution_units",
             default={}
         )
-        for sel in [x for x in [selector, "*"] if x is not None]:
+        for sel in [x for x in ["*", selector] if x is not None]:
             if (sel in additional_execution_units and
                     action in additional_execution_units[sel]):
                 execution_unit = additional_execution_units[sel][action]
@@ -36,7 +36,7 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             "additional_execution_units",
             default={}
         )
-        for sel in [x for x in [selector, "*"] if x is not None]:
+        for sel in [x for x in ["*", selector] if x is not None]:
             if (sel in additional_execution_units and
                     action in additional_execution_units[sel]):
                 execution_unit = additional_execution_units[sel][action]
@@ -192,11 +192,11 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         if Settings.get("debug") and not sel_name:
             print("Selector is not found")
         execution_units = {}
-        for selector in [x for x in [sel_name, "*"] if x is not None]:
+        for selector in [x for x in ["*", sel_name] if x is not None]:
             if selector in execution_units_map:
                 for action in execution_units_map[selector]:
                     execution_units[action] = execution_units_map[selector][action]
-        for selector_name in [x for x in [sel_name, "*"] if x is not None]:
+        for selector_name in [x for x in ["*", sel_name] if x is not None]:
             # Global
             additional_execution_units = Settings.get_global(
                 "additional_execution_units",
@@ -292,8 +292,13 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     "action": action
                 }
             }]
+        runnable_unit = 0
+        for key in execution_units:
+            execution_unit = execution_units[key]
+            if isinstance(execution_unit, dict):
+                runnable_unit += 1
         if (Settings.get("run_if_only_one_available") and
-                len(execution_units) == 1):
+                runnable_unit == 1):
             self.window.run_command(
                 "terminality_run",
                 {"selector": selector_name, "action": action}
