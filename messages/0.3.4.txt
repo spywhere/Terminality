@@ -1,0 +1,8 @@
+Terminality has been updated to v0.3.4
+
+Changelogs:
+ - Reprioritize the selectors (previously is language first, now language last)
+ - Fix execution units did not count properly which make one key command doesn't work
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file

@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.3.3"
+TERMINALITY_VERSION = "0.3.4"
 
 
 def plugin_loaded():
