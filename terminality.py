@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.3.4"
+TERMINALITY_VERSION = "0.3.5"
 
 
 def plugin_loaded():
@@ -49,6 +49,10 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
                     continue
         if execution_unit is None:
             sublime.error_message("There is no such execution unit")
+            return
+        if not isinstance(execution_unit, dict):
+            if Settings.get("debug"):
+                print("Execution unit is ignored [%s][%s]" % (selector, action))
             return
         command = None
         command_type = None
