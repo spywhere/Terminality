@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.3.5"
+TERMINALITY_VERSION = "0.3.6"
 
 
 def plugin_loaded():
@@ -296,16 +296,11 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     "action": action
                 }
             }]
-        runnable_unit = 0
-        for key in execution_units:
-            execution_unit = execution_units[key]
-            if isinstance(execution_unit, dict):
-                runnable_unit += 1
         if (Settings.get("run_if_only_one_available") and
-                runnable_unit == 1):
+                len(menu["items"]) == 1):
             self.window.run_command(
                 "terminality_run",
-                {"selector": selector_name, "action": action}
+                menu["actions"][0]["args"]
             )
             return None
         if len(menu["items"]) <= 0 and Settings.get("show_nothing_if_nothing"):

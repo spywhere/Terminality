@@ -1,0 +1,8 @@
+Terminality has been updated to v0.3.6
+
+Changelogs:
+ - Fix windows multiple commands did not run properly
+ - Fix ignored commands did not properly count
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file

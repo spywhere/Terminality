@@ -18,7 +18,7 @@
                 "name": "Run $file_name",
                 "description": "Compile and Run $file_name with default C++ compiler",
                 "required": ["file"],
-                "command": "gcc $file -o $file_without_ext; $file_without_ext",
+                "command": "gcc $file -o $file_without_ext && $file_without_ext",
                 "macros": {
                     "file_without_ext": [
                         ["$file", ".*(?=\\.)"]
@@ -31,7 +31,7 @@
                 "name": "Run $file_name",
                 "description": "Compile and Run $file_name with default C++ compiler",
                 "required": ["file"],
-                "command": "g++ $file -o $file_without_ext; $file_without_ext",
+                "command": "g++ $file -o $file_without_ext && $file_without_ext",
                 "macros": {
                     "file_without_ext": [
                         ["$file", ".*(?=\\.)"]
