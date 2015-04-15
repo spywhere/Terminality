@@ -7,7 +7,7 @@ from .progress import ThreadProgress
 from .settings import Settings
 
 
-TERMINALITY_VERSION = "0.3.7"
+TERMINALITY_VERSION = "0.3.8"
 
 
 def plugin_loaded():
@@ -17,6 +17,36 @@ def plugin_loaded():
 
 
 class TerminalityRunCommand(sublime_plugin.WindowCommand):
+    def parse_list(self, in_list, macros):
+        out_list = []
+        for value in in_list:
+            if isinstance(value, str):
+                value = Macro.parse_macro(
+                    string=value,
+                    custom_macros=macros
+                )
+            elif (isinstance(value, list) or
+                    isinstance(value, tuple)):
+                value = self.parse_list(value, macros)
+            elif isinstance(value, dict):
+                value = self.parse_dict(value, macros)
+            out_list.append(value)
+        return out_list
+
+    def parse_dict(self, in_dict, macros):
+        for key in in_dict:
+            if isinstance(in_dict[key], str):
+                in_dict[key] = Macro.parse_macro(
+                    string=in_dict[key],
+                    custom_macros=macros
+                )
+            elif (isinstance(in_dict[key], list) or
+                    isinstance(in_dict[key], tuple)):
+                in_dict[key] = self.parse_list(in_dict[key], macros)
+            elif isinstance(in_dict[key], dict):
+                in_dict[key] = self.parse_dict(in_dict[key], macros)
+        return in_dict
+
     def run(self, selector=None, action=None):
         execution_unit = None
         execution_units = Settings.get("execution_units")
@@ -88,11 +118,7 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
             args = {}
             if "args" in execution_unit:
                 args = execution_unit["args"]
-            for key in args:
-                args[key] = Macro.parse_macro(
-                    string=args[key],
-                    custom_macros=custom_macros
-                )
+            args = self.parse_dict(args, custom_macros)
             if command_script is None:
                 sublime.error_message("Required macros are missing")
                 return
@@ -275,13 +301,13 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                 if Settings.get("debug"):
                     print("Required params is not completed")
                 continue
-            dest = action_name + " command"
             if "name" in execution_unit:
                 action_name = Macro.parse_macro(
                     string=execution_unit["name"],
                     custom_macros=custom_macros,
                     required=required_macros
                 )
+            dest = action_name + " command"
             if "description" in execution_unit:
                 dest = Macro.parse_macro(
                     string=execution_unit["description"],

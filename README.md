@@ -21,8 +21,8 @@ The command is language-based. Current version support the following languages..
 - Lua
   - Run
 - Python
-  - Run as Python 2.7
-  - Run as Python 3
+  - Run as Python 2.7 (`python` command)
+  - Run as Python 3 (`python3` command)
 - Ruby
   - Run
 - Swift (OS X only)
@@ -35,6 +35,17 @@ Just pressing `Ctrl+Key+R` and the menu will show up, let's you select which com
 
 `Key` is `Alt` in Windows, Linux, `Cmd` in OS X
 
+**Note!** This key binding is conflicted with SFTP. You might have to override it yourself.
+
+### Settings
+Terminality is using a very complex settings system in which you can control how settings affect the whole Sublime Text or each project you want.
+
+As you might already know, you can override default settings by set the desire settings inside user's settings file (can be access via `Preferences > Packages Settings > Terminality > Settings - User`).
+
+But if you want to override the settings for particular project, you can add the `terminality` dictionary to the .sublime-project file. Under this dictionary, it works like a user's settings file but for that project instead.
+
+To summarize, Terminality will look for any settings in your project settings file first, then user's settings file, and finally, the default package settings.
+
 ### How Terminality can helps my current workflow?
 Good question! You might think Terminality is just a plugin that showing a list of commands which you already know how to use it. Sure, that what it is under the hood but Terminality does not stop there. Here are the list of somethings that Terminality can do for you...
 
@@ -45,73 +56,111 @@ Good question! You might think Terminality is just a plugin that showing a list 
 - And much more...
 
 ### How can I created my own command to be used with Terminality?
-You can create your own command to be used with Terminality by open Terminality user's setting file and set the settings in following format...
+You can create your own command to be used with Terminality by override the commands in which using only `additional_execution_units` key in the settings. 
 
-```
+If you override the `execution_units`, this will override the entire (default) commands which might affect the one you might currently using.
+
+```javascript
+// Settings file
 {
-	... Your other settings ...
+	// ... Your other settings ...
 	"additional_execution_units": {
-		"<Language scope to be used with or '*' to apply to any language>": {
-			"<Action Name such as Compile or Run>": {
-				// All keys in here can be omitted except "command"
-				"name": "<String or Macro for overriding action name>",
-				"location": "<String or Macro for location path will be used to run command>",
-				"required": [<List of macro that have to be set before run (without $)>]
-				"command": "<String or Macro to define command>",
-				"window_command": "<String or Macro to define command to run in Sublime Text's window>",
-				"view_command": "String or Macro to define command to run in Sublime Text's view",
-				"args": {<A dictionary to define arguments (each value in key will be parsed)>},
-				"platforms": [<List of supported platforms (value must be in "<os>-<arch>", "<os>" or "<arch>" format)>]
-				"read_only": <Boolean indicated whether Terminal is read-only or not>,
-				"close_on_exit" <Boolean indicated whether buffer will be closed after the Terminal is terminated>
-				"macros": {<A dictionary contains custom macros (See Macros section belows)>}
-			},
-			// If set action to other type (not dictionary) then specified action will be removed
-			"<Action Name such as Compile or Run>": 0
-		}
+		// ... See Language Scopes section belows ...
 	},
-	... Your other settings ...
+	// ... Your other settings ...
+}
+```
+
+#### Language Scopes
+Terminality use Sublime Text's syntax language scope in which you can look it up at the status bar when pressing `Ctrl+Alt+Shift+P` (Windows and Linux) and `Ctrl+Shift+P` (OSX).
+
+Language Scope section is a dictionary contains commands which will available for specified language scope.
+
+The key of the language scope is simply a scope name you want to specified. If you want the command to be available to all language just simply use the `*` as a language scope.
+
+You cannot override the default language scope. However, you can remove the default commands for that language scope by set the value to non-dictionary type (such as `0`).
+
+```javascript
+"<Language Scope>": {
+	// ... See Commands section belows ...
+}
+```
+
+#### Commands
+Command section is a dictionary contains informations about how to run the command.
+
+The key of the command is simply a command name you want to use as a command reference (this will also be used as command name if you did not specified the `name` key).
+
+You can override the command by use the exactly same command reference name of the command you want to override (included default one). And you can also remove the commands by set the value to non-dictionary type (such as `0`).
+
+Each key is optional (exceptions in the Limitations/Rules section belows) and has the following meaning...
+
+- `name` [macros string] A name of the command (which showing in the menu).
+- `description` [macros string] A description of the command (which show as subtitle in the menu).
+- `location` [macros string] A location path to run the command
+- `required` [list] A list of macro name (without $) that have to be set before run the command (if any of the macro is not set, command will not run).
+- `command` [macros string] A macros string define the command that will be run.
+- `window_command` [macros string] A macros string define the Sublime Text's window command (included any plugin you installed) that will be run.
+- `view_command` [macros string] A macros string define the Sublime Text's view command (command in which only run within a view) that will be run.
+- `args` [dict] A dictionary that will be passed to `window_command` or `view_command`. Each macro inside the dictionary's value will be parsed recursively.
+- `platforms` [list] A list of supported platforms. In `<os>-<arch>`, `<os>` or `<arch>` format (`os` and `arch` are from Sublime Text's `sublime.platform()` and `sublime.arch()` command).
+- `no_echo` [bool] Specify whether input will be echo (`false`) or not (`true`).
+- `read_only` [bool] Specify whether running view can receives input from user (`false`) or not (`true`).
+- `close_on_exit` [bool] Specify whether running view will be closed when command is terminated (`true`) or not (`false`).
+- `macros` [dict] A dictionary contains custom macro definitions. See Custom Macros section belows.
+
+```javascript
+"<Command Reference>": {
+	"name": "<Command Reference>",
+	"description": "<Command Name> command",
+	"location": "$working",
+	"required": [],
+	// You can use only one of "command", "window_command" or "view_command"
+	"command": "<No default value>",
+	"window_command": "<No default value>",
+	"view_command": "<No default value>",
+	// "args" will only use with "window_command" and "view_command"
+	"args": {},
+	"platforms": [<No default value>],
+	"no_echo": false,
+	"read_only": false,
+	"close_on_exit": false,
+	"macros": {}
 }
 ```
 
 ##### Limitations/Rules
 
 - Every macro name (except inside `required`) should have `$` prefix.
-- Each action must contains one of `command`, `window_command` and `view_command` only
-- `location`, `required`, `read_only` and `close_on_exit` only works with `command` only
+- Each action must contains only one of `command`, `window_command` and `view_command` (other can be omitted)
+- `location`, `no_echo`, `read_only` and `close_on_exit` only works with `command` only
 - `args` only works with `window_command` or `view_command` only
 
-See example inside Terminality's settings file
+See example inside Terminality's user settings file (and also in Terminality's .sublime-project file itself!).
 
 ### Predefined Macros
-`file`: Path to current working file
 
-`file_name`: Name of `file`
-
-`working`: This will use `working_project` but if not found it will use `project` and if still not found it will use `parent`
-
-`working_name`: Name of `working`
-
-`working_project`: Project folder contains current working file
-
-`working_project_name`: Name of `working_project`
-
-`project`: First project folder
-
-`project_name`: Name of `project`
-
-`parent`: Parent folder contains current working file
-
-`parent_name`: Name of `parent`
-
-`packages_path`: Path to Sublime Text's packages folder
-
-`sep`: Path separator (`/` or `\` depends on your operating system)
-
-`$`: `$` symbol
+- `file`: Path to current working file  
+`file_relative`: Relative path of `file`
+- `file_name`: Name of `file`
+- `working`: This will use `working_project` but if not found it will use `project` and if still not found it will use `parent`  
+`working_relative`: Relative path of `working`
+- `working_name`: Name of `working`
+- `working_project`: Project folder contains current working file  
+`working_project_relative`: Relative path of `working_project`
+- `working_project_name`: Name of `working_project`
+- `project`: First project folder  
+`project_relative`: Relative path of `project`
+- `project_name`: Name of `project`
+- `parent`: Parent folder contains current working file  
+`parent_relative`: Relative path of `parent`
+- `parent_name`: Name of `parent`
+- `packages_path`: Path to Sublime Text's packages folder
+- `sep`: Path separator (`/` or `\` depends on your operating system)
+- `$`: `$` symbol
 
 ### Custom Macros
-You can create your own macro to be used with custom command by adding each macro to `macros` section in your execution unit (See command format aboves). Each macro is a key-value pairs which key indicated macro name (`a-zA-Z0-9_` without prefixed `$`) to be used and value is a list of any combination of following values...
+You can create your own macro to be used with custom command by adding each macro to `macros` section in your execution unit (See Commands aboves). Each macro is a key-value pairs in which key indicated macro name (`a-zA-Z0-9_` without prefixed `$`) and value is a list of any combination of the following values...
 
 - `"String and/or $macro"` This will be a parsed string (which must not contains self-recursion) if previous value is not found
 - `["Start:End"]` This will substring the previous value (if any) from `start` to `end`
@@ -125,11 +174,11 @@ Macro works as a sequence, if current macro is not found it will look at the nex
 
 Example:
 
-```
+```javascript
 "CustomMacro": [
-	"$file_name",
-	[":-3"],
-	["$file", "\\w+"],
-	""
+	"$file_name", // Get the file name from predefined macro
+	[":-4"], // Remove the last 4 characters (if value is found)
+	["$file", "\\w+"], // Get the result from parsing "$file" with RegEx if previous value is not found
+	"" // If nothing can be used, use empty string
 ]
 ```

@@ -1,0 +1,9 @@
+Terminality has been updated to v0.3.8
+
+Changelogs:
+ - `args` key now recursively parsed
+ - Default command description now use the name instead of the reference name
+ - Updated README.md file for more informations about how to use custom commands
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file
