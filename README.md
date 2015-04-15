@@ -33,6 +33,8 @@ Is that it? No, Terminality allows you to add your own commands to be used insid
 ### How to use it?
 Just pressing `Ctrl+Key+R` and the menu will show up, let's you select which command to run.
 
+If you want to pass arguments to command (depends on how each command use the arguments), pressing `Ctrl+Key+Shift+R` instead. This will let's you select the command first, then ask you for arguments input.
+
 `Key` is `Alt` in Windows, Linux, `Cmd` in OS X
 
 **Note!** This key binding is conflicted with SFTP. You might have to override it yourself.
@@ -102,6 +104,7 @@ Each key is optional (exceptions in the Limitations/Rules section belows) and ha
 - `description` [macros string] A description of the command (which show as subtitle in the menu).
 - `location` [macros string] A location path to run the command
 - `required` [list] A list of macro name (without $) that have to be set before run the command (if any of the macro is not set, command will not run).
+- `arguments` [string] A text to show when ask for arguments input.
 - `command` [macros string] A macros string define the command that will be run.
 - `window_command` [macros string] A macros string define the Sublime Text's window command (included any plugin you installed) that will be run.
 - `view_command` [macros string] A macros string define the Sublime Text's view command (command in which only run within a view) that will be run.
@@ -159,6 +162,9 @@ See example inside Terminality's user settings file (and also in Terminality's .
 `parent_relative`: Relative path of `parent`
 - `parent_name`: Name of `parent`
 - `packages_path`: Path to Sublime Text's packages folder
+- `raw_selection`: Raw text of last selection
+- `selection`: Striped text of last selection
+- `arguments`: A text which passed via arguments input
 - `sep`: Path separator (`/` or `\` depends on your operating system)
 - `$`: `$` symbol
 

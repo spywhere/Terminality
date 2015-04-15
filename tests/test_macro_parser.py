@@ -4,7 +4,19 @@ from unittest.mock import patch, MagicMock
 from Terminality.macro import Macro
 
 
+def file_content(region):
+    contents = """
+    Hello, World!
+    This might be a long file
+    In which use to test something
+    Blah blah blah...
+    """
+
+    return contents[region.begin():region.end()]
+
+
 MockView = MagicMock(spec=sublime.View)
+MockView.substr = MagicMock(side_effect=file_content)
 MockView.file_name.return_value = "path/to/file.ext"
 
 MockWindow = MagicMock(spec=sublime.Window)
@@ -243,6 +255,98 @@ class TestMacroParser(unittest.TestCase):
                     [None, None]
                 ]
             }
+        }
+
+        self.assertEqual(
+            Macro.parse_macro(
+                string=macros["test"],
+                custom_macros=macros["macros"],
+                required=macros["required"]
+            ),
+            macros["expected"]
+        )
+
+    @patch('sublime.active_window', return_value=MockWindow)
+    def test_required_macro6(self, active_window):
+        macros = {
+            "test": "$selection",
+            "expected": "",
+            "required": [],
+            "macros": {}
+        }
+
+        self.assertEqual(
+            Macro.parse_macro(
+                string=macros["test"],
+                custom_macros=macros["macros"],
+                required=macros["required"]
+            ),
+            macros["expected"]
+        )
+
+    @patch('sublime.active_window', return_value=MockWindow)
+    def test_required_macro7(self, active_window):
+        macros = {
+            "test": "$selection",
+            "expected": None,
+            "required": ["selection"],
+            "macros": {}
+        }
+
+        self.assertEqual(
+            Macro.parse_macro(
+                string=macros["test"],
+                custom_macros=macros["macros"],
+                required=macros["required"]
+            ),
+            macros["expected"]
+        )
+
+    @patch('sublime.active_window', return_value=MockWindow)
+    def test_required_macro8(self, active_window):
+        MockView.sel.return_value = [sublime.Region(5, 10)]
+        macros = {
+            "test": "$selection",
+            "expected": "Hello",
+            "required": [],
+            "macros": {}
+        }
+
+        self.assertEqual(
+            Macro.parse_macro(
+                string=macros["test"],
+                custom_macros=macros["macros"],
+                required=macros["required"]
+            ),
+            macros["expected"]
+        )
+
+    @patch('sublime.active_window', return_value=MockWindow)
+    def test_required_macro9(self, active_window):
+        MockView.sel.return_value = [sublime.Region(5, 10)]
+        macros = {
+            "test": "$selection",
+            "expected": "Hello",
+            "required": ["selection"],
+            "macros": {}
+        }
+
+        self.assertEqual(
+            Macro.parse_macro(
+                string=macros["test"],
+                custom_macros=macros["macros"],
+                required=macros["required"]
+            ),
+            macros["expected"]
+        )
+
+    @patch('sublime.active_window', return_value=MockWindow)
+    def test_required_macro10(self, active_window):
+        macros = {
+            "test": "",
+            "expected": None,
+            "required": [""],
+            "macros": {}
         }
 
         self.assertEqual(

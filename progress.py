@@ -16,7 +16,11 @@ class ThreadProgress():
 
     def anim_fx(self, i, message, thread):
         chars = "⢁⡈⠔⠢"
-        return {"i": (i + 1) % len(chars), "message": "%s [%s]" % (self.message, chars[i]), "delay": 150}
+        return {
+            "i": (i + 1) % len(chars),
+            "message": "%s [%s]" % (self.message, chars[i]),
+            "delay": 150
+        }
 
     def set_status(self, status=""):
         sublime.status_message(status)

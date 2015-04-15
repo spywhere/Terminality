@@ -5,7 +5,7 @@
                 "name": "Run $file_name",
                 "description": "Run $file_name with default Swift runtime",
                 "required": ["file"],
-                "command": "swift $file",
+                "command": "swift $file $arguments",
                 "platforms": ["osx"]
             }
         }

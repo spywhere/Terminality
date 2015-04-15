@@ -5,7 +5,17 @@
         "args": {
             "action": {
                 "name": "main"
-            }
+            },
+            "arguments": false
+        }
+    }, {
+        "keys": ["ctrl+alt+shift+r"],
+        "command": "terminality",
+        "args": {
+            "action": {
+                "name": "main"
+            },
+            "arguments": true
         }
     }
 ]

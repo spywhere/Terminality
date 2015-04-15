@@ -5,13 +5,13 @@
                 "name": "Run $file_name",
                 "description": "Run $file_name as Python 2.7 document",
                 "required": ["file"],
-                "command": "python -u $file"
+                "command": "python -u $file $arguments"
             },
             "python3run": {
                 "name": "Run $file_name in python3",
                 "description": "Run $file_name as Python 3 document",
                 "required": ["file"],
-                "command": "python3 -u $file"
+                "command": "python3 -u $file $arguments"
             }
         }
     }

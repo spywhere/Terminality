@@ -1,12 +1,17 @@
 Terminality has been updated to v0.3.8
 
 Changelogs:
+ - Now you can pass arguments to the command by pressing Ctrl+Key+Shift+R
+ - Add `selection`, `raw_selection` and `arguments` macros
  - Add Collections feature (a collections of commands)
  - `additional_execution_units` is now deprecated and will be removed in v0.4.0
    (use `execution_units` instead). See README.md file for more informations
  - `args` key now recursively parsed
  - Default command description now use the name instead of the reference name
+ - Fix required macros work incorrectly if the key is exists but the value
+   is None
  - Updated README.md file for more informations about how to use custom commands
+ - Conform the code with PEP8
 
 To gain maximum potentials of Terminality, please read how you can add your own
     commands in README.md file

@@ -11,8 +11,10 @@ MatchObject = type(re.search("", ""))
 
 class Macro:
     @staticmethod
-    def get_macros(macros=None, custom_macros=None,
-                   required=None, restricted=None):
+    def get_macros(macros=None, custom_macros=None, required=None,
+                   restricted=None, arguments=None):
+        if arguments is not None:
+            arguments = str(arguments)
         macros = macros or {
             "file": Macro.get_file_path(
                 relative=False
@@ -50,6 +52,9 @@ class Macro:
             ),
             "parent_name": Macro.get_parent_name(),
             "packages_path": Macro.get_packages_path(),
+            "raw_selection": Macro.get_selection(raw=True),
+            "selection": Macro.get_selection(raw=False),
+            "arguments": arguments,
             "sep": Macro.get_separator(),
             "$": "$"
         }
@@ -76,6 +81,7 @@ class Macro:
                         custom_macros=custom_macros,
                         required=required,
                         restricted=restricted+[custom_macro_name],
+                        arguments=arguments,
                         internal=True
                     )
                 elif isinstance(macro, list) or isinstance(macro, tuple):
@@ -129,6 +135,7 @@ class Macro:
                                 custom_macros=custom_macros,
                                 required=required,
                                 restricted=restricted+[custom_macro_name],
+                                arguments=arguments,
                                 internal=True
                             )
                             macro = macro[1:]
@@ -159,23 +166,28 @@ class Macro:
 
     @staticmethod
     def parse_macro(string, macros=None, custom_macros=None, required=None,
-                    restricted=None, escaped=False, internal=False):
+                    restricted=None, arguments=None, escaped=False,
+                    internal=False):
         if isinstance(string, str):
             required = required or []
             macros_list = Macro.get_macros(
                 macros=macros,
                 custom_macros=custom_macros,
                 required=required,
-                restricted=restricted
+                restricted=restricted,
+                arguments=arguments
             )
 
             if internal:
-                for macro_name in [x for x in re.findall(MACRO_PATTERN, string)]:
-                    if macro_name not in macros_list:
+                for macro_name in [
+                        x for x in re.findall(MACRO_PATTERN, string)]:
+                    if (macro_name not in macros_list or
+                            macros_list[macro_name] is None):
                         return None
             else:
                 for macro_name in required:
-                    if macro_name not in macros_list:
+                    if (macro_name not in macros_list or
+                            macros_list[macro_name] is None):
                         return None
 
             if macros_list:
@@ -186,7 +198,8 @@ class Macro:
                             macros=macros_list,
                             custom_macros=custom_macros,
                             required=required,
-                            restricted=restricted
+                            restricted=restricted,
+                            arguments=arguments
                         ) or "",
                         escaped
                     ),
@@ -220,7 +233,8 @@ class Macro:
     @staticmethod
     def get_working_project_dir(relative=False):
         if relative:
-            return "." if Macro.get_working_project_dir(relative=False) else None
+            return ("." if Macro.get_working_project_dir(relative=False)
+                    else None)
         folders = sublime.active_window().folders()
         for folder in folders:
             if Macro.contains_file(folder, Macro.get_file_path(relative=False)):
@@ -262,6 +276,19 @@ class Macro:
     def get_parent_name():
         parent_path = Macro.get_parent_dir(relative=False)
         return os.path.basename(parent_path) if parent_path else None
+
+    @staticmethod
+    def get_selection(raw=False):
+        view = sublime.active_window().active_view()
+        selections = view.sel()
+        if len(selections) <= 0:
+            return None
+        elif raw and view.substr(selections[-1]) == "":
+            return None
+        elif not raw and view.substr(selections[-1]).strip() == "":
+            return None
+        return (view.substr(selections[-1]) if raw
+                else view.substr(selections[-1]).strip())
 
     @staticmethod
     def get_packages_path():

@@ -4,10 +4,23 @@ from unittest.mock import patch, MagicMock
 from Terminality.macro import Macro
 
 
+def file_content(region):
+    contents = """
+    Hello, World!
+    This might be a long file
+    In which use to test something
+    Blah blah blah...
+    """
+
+    return contents[region.begin():region.end()]
+
+
 MockView = MagicMock(spec=sublime.View)
+MockView.substr = MagicMock(side_effect=file_content)
 MockView.file_name.return_value = "path/to/file.ext"
 
 MockView2 = MagicMock(spec=sublime.View)
+MockView2.substr = MagicMock(side_effect=file_content)
 MockView2.file_name.return_value = None
 
 MockWindow = MagicMock(spec=sublime.Window)
@@ -113,6 +126,75 @@ class TestMacroInternal(unittest.TestCase):
         self.assertEqual(
             Macro.get_parent_name(),
             None
+        )
+
+    @patch('sublime.active_window', return_value=MockWindow)
+    def test_selection(self, active_window):
+        self.assertEqual(
+            Macro.get_selection(raw=False),
+            None
+        )
+        self.assertEqual(
+            Macro.get_selection(raw=True),
+            None
+        )
+        MockView.sel.return_value = []
+        self.assertEqual(
+            Macro.get_selection(raw=False),
+            None
+        )
+        self.assertEqual(
+            Macro.get_selection(raw=True),
+            None
+        )
+        MockView.sel.return_value = [sublime.Region(11, 11)]
+        self.assertEqual(
+            Macro.get_selection(raw=False),
+            None
+        )
+        self.assertEqual(
+            Macro.get_selection(raw=True),
+            None
+        )
+        MockView.sel.return_value = [sublime.Region(11, 12)]
+        self.assertEqual(
+            Macro.get_selection(raw=False),
+            None
+        )
+        self.assertEqual(
+            Macro.get_selection(raw=True),
+            " "
+        )
+
+    @patch('sublime.active_window', return_value=MockWindow)
+    def test_selection2(self, active_window):
+        MockView.sel.return_value = [sublime.Region(5, 10)]
+        self.assertEqual(
+            Macro.get_selection(raw=False),
+            "Hello"
+        )
+
+        MockView.sel.return_value = [
+            sublime.Region(5, 10),
+            sublime.Region(12, 17)
+        ]
+        self.assertEqual(
+            Macro.get_selection(raw=False),
+            "World"
+        )
+
+        MockView.sel.return_value = [
+            sublime.Region(5, 10),
+            sublime.Region(12, 17),
+            sublime.Region(11, 17)
+        ]
+        self.assertEqual(
+            Macro.get_selection(raw=False),
+            "World"
+        )
+        self.assertEqual(
+            Macro.get_selection(raw=True),
+            " World"
         )
 
     @patch('sublime.active_window', return_value=MockWindow)

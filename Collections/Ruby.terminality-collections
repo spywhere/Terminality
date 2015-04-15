@@ -5,7 +5,7 @@
                 "name": "Run $file_name",
                 "description": "Run $file_name with default Ruby runtime",
                 "required": ["file"],
-                "command": "ruby $file"
+                "command": "ruby $file $arguments"
             }
         }
     }
