@@ -134,4 +134,7 @@
     //    replace = Replace all invalid encoding character with "?" symbol
     // Change this value without knowing what you're doing is not a good idea
     "encoding_handle": "replace",
+    
+    // The encoding to handle input/output of the invoked process
+    "encoding": "UTF-8"
 }
