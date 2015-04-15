@@ -1,0 +1,7 @@
+Terminality has been updated to v0.3.7
+
+Changelogs:
+ - Output encoding can be configured (thanks to @utensil)
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file

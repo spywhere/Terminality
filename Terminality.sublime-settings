@@ -129,12 +129,12 @@
     //    it's also affect the system performances
     "refresh_interval": 0.01,
 
+    // The encoding to handle input/output of the invoked process
+    "encoding": "UTF-8",
+
     // Error handler on output encoding
     //    ignore = Remove all invalid encoding character
     //    replace = Replace all invalid encoding character with "?" symbol
     // Change this value without knowing what you're doing is not a good idea
-    "encoding_handle": "replace",
-    
-    // The encoding to handle input/output of the invoked process
-    "encoding": "UTF-8"
+    "encoding_handle": "replace"
 }
