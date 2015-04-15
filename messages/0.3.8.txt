@@ -1,6 +1,9 @@
 Terminality has been updated to v0.3.8
 
 Changelogs:
+ - Add Collections feature (a collections of commands)
+ - `additional_execution_units` is now deprecated and will be removed in v0.4.0
+   (use `execution_units` instead). See README.md file for more informations
  - `args` key now recursively parsed
  - Default command description now use the name instead of the reference name
  - Updated README.md file for more informations about how to use custom commands

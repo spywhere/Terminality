@@ -1,0 +1,17 @@
+{
+    "execution_units": {
+        "source.c": {
+            "run": {
+                "name": "Run $file_name",
+                "description": "Compile and Run $file_name with default C++ compiler",
+                "required": ["file"],
+                "command": "gcc $file -o $file_without_ext && $file_without_ext",
+                "macros": {
+                    "file_without_ext": [
+                        ["$file", ".*(?=\\.)"]
+                    ]
+                }
+            }
+        }
+    }
+}

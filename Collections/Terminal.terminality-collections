@@ -1,0 +1,24 @@
+{
+    "execution_units": {
+        "*": {
+            "terminal": {
+                "name": "Run Terminal here",
+                "description": "Run bash $nice_parent_name",
+                "required": ["parent_relative", "parent"],
+                "location": "$parent",
+                "command": "bash --version; bash -i",
+                "platforms": ["osx", "linux"],
+                "no_echo": true,
+                "macros": {
+                    "nice_parent_name": [
+                        "at \"$parent_rel\"",
+                        "here"
+                    ],
+                    "parent_rel": [
+                        ["$parent_relative", "(\\w+/?)+"]
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+    "execution_units": {
+        "source.lua": {
+            "run": {
+                "name": "Run $file_name",
+                "description": "Run $file_name with default Lua runtime",
+                "required": ["file"],
+                "command": "lua -l $file"
+            }
+        }
+    }
+}

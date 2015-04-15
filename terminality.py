@@ -5,6 +5,7 @@ from .QuickMenu.QuickMenu import QuickMenu
 from .macro import Macro
 from .progress import ThreadProgress
 from .settings import Settings
+from .unit_collections import UnitCollections
 
 
 TERMINALITY_VERSION = "0.3.8"
@@ -49,11 +50,14 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
 
     def run(self, selector=None, action=None):
         execution_unit = None
-        execution_units = Settings.get("execution_units")
+        execution_units = UnitCollections.load_default_collections()
         # Global
         additional_execution_units = Settings.get_global(
-            "additional_execution_units",
-            default={}
+            "execution_units",
+            default=Settings.get_global(
+                "additional_execution_units",
+                default={}
+            )
         )
         for sel in [x for x in ["*", selector] if x is not None]:
             if (sel in additional_execution_units and
@@ -63,8 +67,11 @@ class TerminalityRunCommand(sublime_plugin.WindowCommand):
                     continue
         # Local
         additional_execution_units = Settings.get_local(
-            "additional_execution_units",
-            default={}
+            "execution_units",
+            default=Settings.get_local(
+                "additional_execution_units",
+                default={}
+            )
         )
         for sel in [x for x in ["*", selector] if x is not None]:
             if (sel in additional_execution_units and
@@ -206,61 +213,76 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         "actions": [""]
     }
 
+    def get_execution_units(self, execution_units_map, selector):
+        execution_units = {}
+        #  Default Execution Units
+        for selector_name in [x for x in ["*", selector] if x is not None]:
+            if selector_name in execution_units_map:
+                for action in execution_units_map[selector_name]:
+                    execution_units[action] = execution_units_map[selector_name][action]
+        for selector_name in [x for x in ["*", selector] if x is not None]:
+            # Global
+            additional_execution_units = Settings.get_global(
+                "execution_units",
+                default=Settings.get_global(
+                    "additional_execution_units",
+                    default={}
+                )
+            )
+            if selector_name in additional_execution_units:
+                additional_execution_units = additional_execution_units[selector_name]
+                for key in additional_execution_units:
+                    if (key in execution_units and
+                            isinstance(additional_execution_units[key], dict)):
+                        for sub_key in additional_execution_units[key]:
+                            execution_units[key][sub_key] = additional_execution_units[key][sub_key]
+                    else:
+                        execution_units[key] = additional_execution_units[key]
+                    if isinstance(additional_execution_units[key], dict):
+                        execution_units[key]["selector"] = selector
+            # Local
+            additional_execution_units = Settings.get_local(
+                "execution_units",
+                default=Settings.get_local(
+                    "additional_execution_units",
+                    default={}
+                )
+            )
+            if selector_name in additional_execution_units:
+                additional_execution_units = additional_execution_units[selector_name]
+                for key in additional_execution_units:
+                    if (key in execution_units and
+                            isinstance(additional_execution_units[key], dict)):
+                        for sub_key in additional_execution_units[key]:
+                            execution_units[key][sub_key] = additional_execution_units[key][sub_key]
+                    else:
+                        execution_units[key] = additional_execution_units[key]
+                    if isinstance(additional_execution_units[key], dict):
+                        execution_units[key]["selector"] = selector
+        if Settings.get("debug") and not execution_units:
+            print("Execution units is empty")
+        return execution_units
+
     def generate_menu(self):
         menu = {"items": [], "actions": []}
-        execution_units_map = Settings.get("execution_units")
+        execution_units_map = UnitCollections.load_default_collections()
         sel_name = None
         for selector in execution_units_map:
             if len(self.window.active_view().find_by_selector(selector)) > 0:
                 sel_name = selector
                 break
         if not sel_name:
+            for selector in Settings.get("execution_units"):
+                if len(self.window.active_view().find_by_selector(selector)) > 0:
+                    sel_name = selector
+                    break
             for selector in Settings.get("additional_execution_units"):
                 if len(self.window.active_view().find_by_selector(selector)) > 0:
                     sel_name = selector
                     break
         if Settings.get("debug") and not sel_name:
             print("Selector is not found")
-        execution_units = {}
-        for selector in [x for x in ["*", sel_name] if x is not None]:
-            if selector in execution_units_map:
-                for action in execution_units_map[selector]:
-                    execution_units[action] = execution_units_map[selector][action]
-        for selector_name in [x for x in ["*", sel_name] if x is not None]:
-            # Global
-            additional_execution_units = Settings.get_global(
-                "additional_execution_units",
-                default={}
-            )
-            if selector_name in additional_execution_units:
-                additional_execution_units = additional_execution_units[selector_name]
-                for key in additional_execution_units:
-                    if (key in execution_units and
-                            isinstance(additional_execution_units[key], dict)):
-                        for sub_key in additional_execution_units[key]:
-                            execution_units[key][sub_key] = additional_execution_units[key][sub_key]
-                    else:
-                        execution_units[key] = additional_execution_units[key]
-                    if isinstance(additional_execution_units[key], dict):
-                        execution_units[key]["selector"] = sel_name
-            # Local
-            additional_execution_units = Settings.get_local(
-                "additional_execution_units",
-                default={}
-            )
-            if selector_name in additional_execution_units:
-                additional_execution_units = additional_execution_units[selector_name]
-                for key in additional_execution_units:
-                    if (key in execution_units and
-                            isinstance(additional_execution_units[key], dict)):
-                        for sub_key in additional_execution_units[key]:
-                            execution_units[key][sub_key] = additional_execution_units[key][sub_key]
-                    else:
-                        execution_units[key] = additional_execution_units[key]
-                    if isinstance(additional_execution_units[key], dict):
-                        execution_units[key]["selector"] = sel_name
-        if Settings.get("debug") and not execution_units:
-            print("Execution units is empty")
+        execution_units = self.get_execution_units(execution_units_map, sel_name)
         # Generate menu
         for action in execution_units:
             execution_unit = execution_units[action]

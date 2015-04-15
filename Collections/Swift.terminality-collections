@@ -1,0 +1,13 @@
+{
+    "execution_units": {
+        "source.swift": {
+            "run": {
+                "name": "Run $file_name",
+                "description": "Run $file_name with default Swift runtime",
+                "required": ["file"],
+                "command": "swift $file",
+                "platforms": ["osx"]
+            }
+        }
+    }
+}

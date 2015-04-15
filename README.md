@@ -56,15 +56,18 @@ Good question! You might think Terminality is just a plugin that showing a list 
 - And much more...
 
 ### How can I created my own command to be used with Terminality?
-You can create your own command to be used with Terminality by override the commands in which using only `additional_execution_units` key in the settings. 
+You can create your own command to be used with Terminality by override the commands in which using only `execution_units` key in the settings. 
 
-If you override the `execution_units`, this will override the entire (default) commands which might affect the one you might currently using.
+Or if you want to create and share some of your Terminality commands, use the Collections (See Collections section belows).
+
+> In v0.3.7 or earlier, you must set it in `additional_execution_units` instead.  
+> In v0.3.8 or later, `additional_execution_units` is deprecated and will be removed in v0.4.0
 
 ```javascript
 // Settings file
 {
 	// ... Your other settings ...
-	"additional_execution_units": {
+	"execution_units": {
 		// ... See Language Scopes section belows ...
 	},
 	// ... Your other settings ...
@@ -182,3 +185,21 @@ Example:
 	"" // If nothing can be used, use empty string
 ]
 ```
+
+### Collections
+
+> *Implemented in v0.3.8 and later*
+
+Collections is a package contains Terminality commands which can be install by place in the `User` directory.
+
+The structure of Collections file is simply a JSON file with .terminality-collections extension. Inside the file contains the following format...
+
+```javascript
+{
+	"execution_units": {
+		// ... See Language Scopes section belows ...
+	}
+}
+```
+
+Please note that Collections is not a settings file (although it contains the same key name). Any other key will be ignored completely.

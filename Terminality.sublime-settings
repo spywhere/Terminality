@@ -1,101 +1,11 @@
 {
     // Enable debug mode
     "debug": false,
-    // Execution units for each language
-    //    If you want to override this settings,
-    //    please set it in "additional_execution_units" belows instead
-    "execution_units": {
-        "source.lua": {
-            "run": {
-                "name": "Run $file_name",
-                "description": "Run $file_name with default Lua runtime",
-                "required": ["file"],
-                "command": "lua -l $file"
-            }
-        },
-        "source.c": {
-            "run": {
-                "name": "Run $file_name",
-                "description": "Compile and Run $file_name with default C++ compiler",
-                "required": ["file"],
-                "command": "gcc $file -o $file_without_ext && $file_without_ext",
-                "macros": {
-                    "file_without_ext": [
-                        ["$file", ".*(?=\\.)"]
-                    ]
-                }
-            }
-        },
-        "source.c++": {
-            "run": {
-                "name": "Run $file_name",
-                "description": "Compile and Run $file_name with default C++ compiler",
-                "required": ["file"],
-                "command": "g++ $file -o $file_without_ext && $file_without_ext",
-                "macros": {
-                    "file_without_ext": [
-                        ["$file", ".*(?=\\.)"]
-                    ]
-                }
-            }
-        },
-        "source.python": {
-            "python2run": {
-                "name": "Run $file_name",
-                "description": "Run $file_name as Python 2.7 document",
-                "required": ["file"],
-                "command": "python -u $file"
-            },
-            "python3run": {
-                "name": "Run $file_name in python3",
-                "description": "Run $file_name as Python 3 document",
-                "required": ["file"],
-                "command": "python3 -u $file"
-            }
-        },
-        "source.ruby": {
-            "run": {
-                "name": "Run $file_name",
-                "description": "Run $file_name with default Ruby runtime",
-                "required": ["file"],
-                "command": "ruby $file"
-            }
-        },
-        "source.swift": {
-            "run": {
-                "name": "Run $file_name",
-                "description": "Run $file_name with default Swift runtime",
-                "required": ["file"],
-                "command": "swift $file",
-                "platforms": ["osx"]
-            }
-        },
-        "*": {
-            "terminal": {
-                "name": "Run Terminal here",
-                "description": "Run bash $nice_parent_name",
-                "required": ["parent_relative", "parent"],
-                "location": "$parent",
-                "command": "bash --version; bash -i",
-                "platforms": ["osx", "linux"],
-                "no_echo": true,
-                "macros": {
-                    "nice_parent_name": [
-                        "at \"$parent_rel\"",
-                        "here"
-                    ],
-                    "parent_rel": [
-                        ["$parent_relative", "(\\w+/?)+"]
-                    ]
-                }
-            }
-        }
-    },
 
     // Additional execution units
     //    This will be merged with default execution units
     //    See format in README.md file
-    "additional_execution_units": {
+    "execution_units": {
         "example_language_scope": {
             "just_a_random_command": {
                 "name": "Random Command",
