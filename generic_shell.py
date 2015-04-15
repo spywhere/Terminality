@@ -72,7 +72,7 @@ class GenericShell(threading.Thread):
                 _, viewport_height = self.view.viewport_extent()
                 viewport_posx, viewport_posy = self.view.viewport_position()
                 decoded_data = data.decode(
-                    "utf-8",
+                    Settings.get("encoding"),
                     Settings.get("encoding_handle")
                 ).replace("\r\n", "\n")
                 self.view.set_read_only(False)
@@ -123,7 +123,7 @@ class GenericShell(threading.Thread):
                     )
                 os.write(
                     self.proc.stdin.fileno(),
-                    self.data_in.encode("UTF-8")
+                    self.data_in.encode(Settings.get("encoding"))
                 )
                 self.old_data = self.view.substr(
                     sublime.Region(0, self.view.size())
