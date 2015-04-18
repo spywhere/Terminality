@@ -121,6 +121,7 @@ Each key is optional (exceptions in the Limitations/Rules section belows) and ha
 	"description": "<Command Name> command",
 	"location": "$working",
 	"required": [],
+	"arguments": "Arguments",
 	// You can use only one of "command", "window_command" or "view_command"
 	"command": "<No default value>",
 	"window_command": "<No default value>",
@@ -203,7 +204,7 @@ The structure of Collections file is simply a JSON file with .terminality-collec
 ```javascript
 {
 	"execution_units": {
-		// ... See Language Scopes section belows ...
+		// ... See Language Scopes section aboves ...
 	}
 }
 ```
