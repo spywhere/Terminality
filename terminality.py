@@ -299,12 +299,12 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                 sel_name = selector
                 break
         if not sel_name:
-            for selector in Settings.get("execution_units"):
+            for selector in Settings.get("execution_units", {}):
                 if (len(self.window.active_view().find_by_selector(
                         selector)) > 0):
                     sel_name = selector
                     break
-            for selector in Settings.get("additional_execution_units"):
+            for selector in Settings.get("additional_execution_units", {}):
                 if (len(self.window.active_view().find_by_selector(
                         selector)) > 0):
                     sel_name = selector
