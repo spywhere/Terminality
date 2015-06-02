@@ -3,7 +3,7 @@ import os
 import sys
 import threading
 import subprocess
-from time import clock, sleep
+from time import time, sleep
 from .settings import Settings
 
 
@@ -133,7 +133,7 @@ class GenericShell(threading.Thread):
         self.isWritable = False
 
     def run(self):
-        start_time = clock()
+        start_time = time()
         self.proc = self.popen(self.cmds, self.cwd)
         self.old_data = self.view.substr(sublime.Region(0, self.view.size()))
         self.data_in = ""
@@ -158,7 +158,7 @@ class GenericShell(threading.Thread):
         self.result = True
         if self.on_complete is not None:
             self.on_complete(
-                clock() - start_time,
+                time() - start_time,
                 self.return_code,
                 self.params
             )
