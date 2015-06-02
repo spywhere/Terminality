@@ -102,6 +102,7 @@ Each key is optional (exceptions in the Limitations/Rules section belows) and ha
 
 - `name` [macros string] A name of the command (which showing in the menu).
 - `description` [macros string] A description of the command (which show as subtitle in the menu).
+- `order` [string] A string which used for sorting menus
 - `location` [macros string] A location path to run the command
 - `required` [list] A list of macro name (without $) that have to be set before run the command (if any of the macro is not set, command will not run).
 - `arguments` [string] A text to show when ask for arguments input.
@@ -119,6 +120,7 @@ Each key is optional (exceptions in the Limitations/Rules section belows) and ha
 "<Command Reference>": {
 	"name": "<Command Reference>",
 	"description": "<Command Name> command",
+	"order": "<Command Name>"
 	"location": "$working",
 	"required": [],
 	"arguments": "Arguments",

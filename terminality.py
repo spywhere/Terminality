@@ -8,7 +8,7 @@ from .settings import Settings
 from .unit_collections import UnitCollections
 
 
-TERMINALITY_VERSION = "0.3.8"
+TERMINALITY_VERSION = "0.3.9"
 
 
 def plugin_loaded():
@@ -290,7 +290,7 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         return execution_units
 
     def generate_menu(self, ask_arguments=False):
-        menu = {"items": [], "actions": []}
+        menu = {"items": [], "actions": [], "unsort_items": []}
         execution_units_map = UnitCollections.load_default_collections()
         sel_name = None
         for selector in execution_units_map:
@@ -368,6 +368,9 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     required=required_macros,
                     arguments="<Arguments>" if ask_arguments else None
                 )
+            order = action_name
+            if "order" in execution_unit:
+                order = execution_unit["order"]
             dest = action_name + " command"
             if "description" in execution_unit:
                 dest = Macro.parse_macro(
@@ -376,7 +379,7 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     required=required_macros,
                     arguments="<Arguments>" if ask_arguments else None
                 )
-            menu["items"] += [[action_name, dest]]
+            menu["unsort_items"] += [[action_name, dest, order]]
             menu["actions"] += [{
                 "command": "terminality_run",
                 "args": {
@@ -385,6 +388,11 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     "arguments_title": arguments_title
                 }
             }]
+        menu["unsort_items"] = sorted(menu["unsort_items"], key=lambda x: x[2])
+        while menu["unsort_items"]:
+            menu["items"].append(menu["unsort_items"][0][:-1])
+            menu["unsort_items"] = menu["unsort_items"][1:]
+
         if (Settings.get("run_if_only_one_available") and
                 len(menu["items"]) == 1):
             self.window.run_command(

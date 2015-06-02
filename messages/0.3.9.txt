@@ -1,0 +1,9 @@
+Terminality has been updated to v0.3.9
+
+Changelogs:
+ - Execution unit now supported custom sorting via `order` key
+ - Fix a compatibility bug for v0.3.7 settings or earlier
+ - Fix a shell running time calculation
+
+To gain maximum potentials of Terminality, please read how you can add your own
+    commands in README.md file
