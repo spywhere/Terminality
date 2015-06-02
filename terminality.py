@@ -8,7 +8,7 @@ from .settings import Settings
 from .unit_collections import UnitCollections
 
 
-TERMINALITY_VERSION = "0.3.9"
+TERMINALITY_VERSION = "0.3.10"
 
 
 def plugin_loaded():
@@ -292,7 +292,7 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
     def generate_menu(self, ask_arguments=False):
         menu = {
             "items": [], "actions": [],
-            "unsort_items": [], "unsort_actions": []
+            "unsort_items": []
         }
         execution_units_map = UnitCollections.load_default_collections()
         sel_name = None
@@ -382,21 +382,24 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     required=required_macros,
                     arguments="<Arguments>" if ask_arguments else None
                 )
-            menu["unsort_items"] += [[action_name, dest, order]]
-            menu["unsort_actions"] += [{
-                "command": "terminality_run",
-                "args": {
-                    "selector": selector_name,
-                    "action": action,
-                    "arguments_title": arguments_title
-                }
-            }]
-        menu["unsort_items"] = sorted(menu["unsort_items"], key=lambda x: x[2])
+            menu["unsort_items"] += [[
+                action_name,
+                dest,
+                {
+                    "command": "terminality_run",
+                    "args": {
+                        "selector": selector_name,
+                        "action": action,
+                        "arguments_title": arguments_title
+                    }
+                },
+                order
+            ]]
+        menu["unsort_items"] = sorted(menu["unsort_items"], key=lambda x: x[3])
         while menu["unsort_items"]:
-            menu["items"].append(menu["unsort_items"][0][:-1])
-            menu["actions"].append(menu["unsort_actions"][0])
+            menu["items"].append(menu["unsort_items"][0][:-2])
+            menu["actions"].append(menu["unsort_items"][0][2])
             menu["unsort_items"] = menu["unsort_items"][1:]
-            menu["unsort_actions"] = menu["unsort_actions"][1:]
 
         if (Settings.get("run_if_only_one_available") and
                 len(menu["items"]) == 1):
