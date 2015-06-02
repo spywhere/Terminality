@@ -290,7 +290,10 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         return execution_units
 
     def generate_menu(self, ask_arguments=False):
-        menu = {"items": [], "actions": [], "unsort_items": []}
+        menu = {
+            "items": [], "actions": [],
+            "unsort_items": [], "unsort_actions": []
+        }
         execution_units_map = UnitCollections.load_default_collections()
         sel_name = None
         for selector in execution_units_map:
@@ -380,7 +383,7 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
                     arguments="<Arguments>" if ask_arguments else None
                 )
             menu["unsort_items"] += [[action_name, dest, order]]
-            menu["actions"] += [{
+            menu["unsort_actions"] += [{
                 "command": "terminality_run",
                 "args": {
                     "selector": selector_name,
@@ -391,7 +394,9 @@ class TerminalityCommand(sublime_plugin.WindowCommand):
         menu["unsort_items"] = sorted(menu["unsort_items"], key=lambda x: x[2])
         while menu["unsort_items"]:
             menu["items"].append(menu["unsort_items"][0][:-1])
+            menu["actions"].append(menu["unsort_actions"][0])
             menu["unsort_items"] = menu["unsort_items"][1:]
+            menu["unsort_actions"] = menu["unsort_actions"][1:]
 
         if (Settings.get("run_if_only_one_available") and
                 len(menu["items"]) == 1):
