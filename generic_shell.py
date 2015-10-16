@@ -30,6 +30,8 @@ class GenericShell(threading.Thread):
         self.cwd = path
 
     def popen(self, cmd, cwd):
+        if not os.path.exists(cwd):
+            cwd = os.path.expanduser('~')
         if sys.platform == "win32":
             return subprocess.Popen(
                 cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
