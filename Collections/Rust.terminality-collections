@@ -1,0 +1,17 @@
+{
+    "execution_units": {
+        "source.rust": {
+            "run": {
+                "name": "Run $file_name",
+                "description": "Compile and Run $file_name with default Rust compiler",
+                "required": ["file"],
+                "command": "rustc $file && $file_without_ext $arguments",
+                "macros": {
+                    "file_without_ext": [
+                        ["$file", ".*(?=\\.)"]
+                    ]
+                }
+            }
+        }
+    }
+}
