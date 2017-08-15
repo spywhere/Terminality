@@ -21,8 +21,10 @@ The command is language-based. Current version support the following languages..
 - Lua
   - Run
 - Python
-  - Run as Python 2.7 (`python` command)
+  - Run as Python 2 (`python` command)
   - Run as Python 3 (`python3` command)
+- Rust (thanks to @divinites)
+  - Run
 - Ruby
   - Run
 - Swift (OS X only)
@@ -212,3 +214,8 @@ The structure of Collections file is simply a JSON file with .terminality-collec
 ```
 
 Please note that Collections is not a settings file (although it contains the same key name). Any other key will be ignored completely.
+
+### Contributors
+- @utensil
+- @zmLGBBM
+- @divinites

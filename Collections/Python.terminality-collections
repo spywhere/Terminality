@@ -3,7 +3,7 @@
         "source.python": {
             "python2run": {
                 "name": "Run $file_name",
-                "description": "Run $file_name as Python 2.7 document",
+                "description": "Run $file_name as Python 2 document",
                 "required": ["file"],
                 "command": "python -u $file $arguments"
             },

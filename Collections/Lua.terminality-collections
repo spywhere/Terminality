@@ -5,7 +5,7 @@
                 "name": "Run $file_name",
                 "description": "Run $file_name with default Lua runtime",
                 "required": ["file"],
-                "command": "lua -l $file $arguments"
+                "command": "lua $file $arguments"
             }
         }
     }
